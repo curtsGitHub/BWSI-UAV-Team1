@@ -1,0 +1,309 @@
+[VER] race_code 2026-08-01.18 gate-tags-5x5-field-verified
+/home/bwsi/.local/lib/python3.12/site-packages/matplotlib/projections/__init__.py:63: UserWarning: Unable to import Axes3D. This may be due to multiple versions of Matplotlib being installed (e.g. as a system package and as a pip package). As a result, the 3D projection is not available.
+  warnings.warn("Unable to import Axes3D. This may be due to multiple versions of "
+Display :0 not found.
+>> Entering default flight mode
+>> Drone initialization successful
+>> Controls:
+    START button = run your program
+    BACK button = enter default flight mode
+    BACK + START buttons simultaneously = exit the program
+    CTRL + Z on keyboard = force quit the program
+[95m>> Drone created with the following options:
+    Simulation (-s): [False]
+    Headless (-h): [False]
+    Initialize with display (-d): [False][00m
+>> Entering user program mode
+
+========================================================
+  Week 2 · Module 3 — Linear Regression (Line Following)
+========================================================
+
+[VER] race_code 2026-08-01.18 gate-tags-5x5-field-verified
+[launch] skipped; running at the current altitude
+--- Step 3: Follow the Line ---
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.00m
+[Step 3: Follow the Line] height=0.02m
+[Step 3: Follow the Line] height=0.07m
+[Step 3: Follow the Line] height=0.06m
+[Step 3: Follow the Line] height=0.17m
+[EVT] t=13.94 airborne (alt=0.25m), controller active
+[EVT] t=13.94 line lost (px=0 < 200) search_yaw=+0.00
+[Step 3: Follow the Line] height=0.36m
+[Step 3: Follow the Line] height=0.59m
+[Step 3: Follow the Line] height=0.85m
+[EVT] t=17.12 line reacquired after 3.19s (px=248)
+[EVT] t=17.12 bands=N- (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[EVT] t=17.18 bands=-- (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[LF] t= 17.29 dt=  72ms alt=0.91 att=( -3.0, +0.1,   6.2)deg gyro(x,yaw,z)=(-0.35,+0.01,+0.05) px=3656 n/f=123/3533 bands=-- nearC=636.0 farC=627.4 yawE=-0.065(d-0.426) rollE=+0.988 | cmd P=0.161 R=+0.100 Y=-0.124 T=+0.028 sat=-R-
+[GT] t= 17.29 no gate (decoded tags: [])
+[EVT] t=17.37 bands=N- (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[LF] t= 17.53 dt=  37ms alt=0.92 att=( -7.9, +0.7,   6.5)deg gyro(x,yaw,z)=(-0.31,+0.06,+0.02) px=2912 n/f=0/2912 bands=N- nearC=629.0 farC=629.0 yawE=-0.038(d-0.073) rollE=+0.966 | cmd P=0.177 R=+0.100 Y=-0.037 T=+0.024 sat=-R-
+[GT] t= 17.53 no gate (decoded tags: [])
+[EVT] t=17.57 bands=-- (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[LF] t= 17.78 dt=  36ms alt=0.92 att=(-10.1, +0.1,   8.1)deg gyro(x,yaw,z)=(+0.00,+0.06,-0.04) px=972 n/f=1/971 bands=-- nearC=638.0 farC=632.5 yawE=-0.025(d+0.006) rollE=+0.994 | cmd P=0.185 R=+0.100 Y=-0.014 T=+0.024 sat=-R-
+[GT] t= 17.78 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.92m
+[LF] t= 18.00 dt=  16ms alt=0.92 att=( -9.3, -0.2,   8.4)deg gyro(x,yaw,z)=(+0.06,+0.06,+0.02) px=972 n/f=1/971 bands=-- nearC=638.0 farC=632.5 yawE=-0.025(d+0.000) rollE=+0.994 | cmd P=0.185 R=+0.100 Y=-0.015 T=+0.023 sat=-R-
+[GT] t= 18.00 no gate (decoded tags: [])
+[LF] t= 18.26 dt=  54ms alt=0.93 att=( -9.0, -0.1,   8.1)deg gyro(x,yaw,z)=(-0.01,+0.04,+0.08) px=11512 n/f=4593/6919 bands=-- nearC=625.1 farC=612.7 yawE=-0.066(d-0.097) rollE=+0.953 | cmd P=0.161 R=+0.100 Y=-0.059 T=+0.022 sat=-R-
+[GT] t= 18.26 no gate (decoded tags: [])
+[LF] t= 18.50 dt=  19ms alt=0.94 att=( -6.9, +0.6,   7.6)deg gyro(x,yaw,z)=(+0.39,-0.00,+0.07) px=12366 n/f=5497/6869 bands=-- nearC=621.9 farC=604.7 yawE=-0.086(d-0.049) rollE=+0.943 | cmd P=0.148 R=+0.100 Y=-0.062 T=+0.017 sat=-R-
+[GT] t= 18.50 no gate (decoded tags: [])
+[LF] t= 18.78 dt=  26ms alt=0.95 att=( +0.9, +1.1,   7.2)deg gyro(x,yaw,z)=(+0.45,-0.03,+0.03) px=15971 n/f=8275/7696 bands=-- nearC=604.9 farC=558.7 yawE=-0.188(d-0.700) rollE=+0.890 | cmd P=0.087 R=+0.100 Y=-0.253 T=+0.014 sat=-R-
+[GT] t= 18.78 no gate (decoded tags: [])
+[LF] t= 19.00 dt=  25ms alt=0.94 att=( +0.2, +0.6,   7.4)deg gyro(x,yaw,z)=(-0.65,+0.04,+0.01) px=17268 n/f=9623/7645 bands=-- nearC=572.8 farC=514.7 yawE=-0.214(d-0.299) rollE=+0.790 | cmd P=0.071 R=+0.100 Y=-0.188 T=+0.018 sat=-R-
+[GT] t= 19.00 no gate (decoded tags: [])
+[LF] t= 19.28 dt=  42ms alt=0.94 att=( -8.8, -0.3,  13.5)deg gyro(x,yaw,z)=(+0.67,-0.06,+0.04) px=17313 n/f=10494/6819 bands=-- nearC=563.9 farC=516.3 yawE=-0.177(d+0.051) rollE=+0.762 | cmd P=0.094 R=+0.100 Y=-0.096 T=+0.018 sat=-R-
+[GT] t= 19.28 no gate (decoded tags: [])
+[LF] t= 19.55 dt=  72ms alt=0.93 att=( +1.6, -0.3,  13.2)deg gyro(x,yaw,z)=(+0.75,-0.08,-0.01) px=16621 n/f=10740/5881 bands=-- nearC=531.5 farC=490.4 yawE=-0.159(d+0.047) rollE=+0.661 | cmd P=0.105 R=+0.100 Y=-0.086 T=+0.022 sat=-R-
+[GT] t= 19.55 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.92m
+[LF] t= 19.76 dt=  17ms alt=0.92 att=( +6.1, -0.4,  13.2)deg gyro(x,yaw,z)=(+0.19,-0.05,-0.05) px=15950 n/f=9297/6653 bands=-- nearC=471.0 farC=432.5 yawE=-0.145(d+0.092) rollE=+0.472 | cmd P=0.113 R=+0.100 Y=-0.069 T=+0.023 sat=-R-
+[GT] t= 19.76 no gate (decoded tags: [])
+[LF] t= 20.02 dt=  34ms alt=0.92 att=( +2.4, -3.9,  13.4)deg gyro(x,yaw,z)=(-0.43,-0.06,-0.05) px=16332 n/f=8406/7926 bands=-- nearC=390.8 farC=360.0 yawE=-0.124(d+0.098) rollE=+0.221 | cmd P=0.126 R=+0.056 Y=-0.055 T=+0.023 sat=---
+[GT] t= 20.02 no gate (decoded tags: [])
+[LF] t= 20.26 dt=  16ms alt=0.92 att=( -2.0, -0.0,  13.3)deg gyro(x,yaw,z)=(-0.16,-0.07,+0.37) px=15905 n/f=8337/7568 bands=-- nearC=375.0 farC=346.6 yawE=-0.114(d+0.039) rollE=+0.172 | cmd P=0.131 R=+0.069 Y=-0.061 T=+0.023 sat=---
+[GT] t= 20.26 no gate (decoded tags: [])
+[LF] t= 20.51 dt=  15ms alt=0.93 att=( -2.9, +2.4,  12.5)deg gyro(x,yaw,z)=(+0.01,-0.03,+0.01) px=15566 n/f=8275/7291 bands=-- nearC=362.2 farC=336.0 yawE=-0.106(d+0.006) rollE=+0.132 | cmd P=0.137 R=+0.053 Y=-0.062 T=+0.022 sat=---
+[GT] t= 20.51 no gate (decoded tags: [])
+[LF] t= 20.75 dt=  28ms alt=0.93 att=( -2.5, +2.0,  11.9)deg gyro(x,yaw,z)=(+0.08,-0.02,-0.22) px=15158 n/f=8141/7017 bands=-- nearC=340.5 farC=316.9 yawE=-0.095(d+0.018) rollE=+0.064 | cmd P=0.143 R=+0.026 Y=-0.053 T=+0.021 sat=---
+[GT] t= 20.75 no gate (decoded tags: [])
+[LF] t= 21.00 dt=  48ms alt=0.93 att=( -1.8, -2.2,  11.1)deg gyro(x,yaw,z)=(+0.06,+0.02,-0.13) px=14680 n/f=7842/6838 bands=-- nearC=328.6 farC=307.6 yawE=-0.083(d+0.050) rollE=+0.027 | cmd P=0.150 R=+0.011 Y=-0.040 T=+0.020 sat=---
+[GT] t= 21.00 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.93m
+[LF] t= 21.29 dt=  47ms alt=0.93 att=( -1.2, -0.7,  11.4)deg gyro(x,yaw,z)=(+0.01,+0.01,+0.06) px=13564 n/f=7723/5841 bands=-- nearC=260.4 farC=244.7 yawE=-0.063(d+0.022) rollE=-0.186 | cmd P=0.162 R=-0.089 Y=-0.034 T=+0.021 sat=---
+[GT] t= 21.29 no gate (decoded tags: [])
+[LF] t= 21.52 dt=  35ms alt=0.93 att=( -1.4, -0.7,  11.4)deg gyro(x,yaw,z)=(-0.04,+0.02,-0.03) px=13416 n/f=7693/5723 bands=-- nearC=257.4 farC=239.9 yawE=-0.071(d-0.007) rollE=-0.196 | cmd P=0.158 R=-0.078 Y=-0.044 T=+0.022 sat=---
+[GT] t= 21.52 no gate (decoded tags: [])
+[LF] t= 21.76 dt=  13ms alt=0.92 att=( -2.1, -4.9,  11.2)deg gyro(x,yaw,z)=(-0.05,-0.01,-0.02) px=13761 n/f=7632/6129 bands=-- nearC=244.9 farC=223.7 yawE=-0.084(d-0.085) rollE=-0.235 | cmd P=0.150 R=-0.100 Y=-0.067 T=+0.023 sat=-R-
+[GT] t= 21.76 no gate (decoded tags: [])
+[LF] t= 22.05 dt=  61ms alt=0.93 att=( -2.3, -1.3,  11.2)deg gyro(x,yaw,z)=(-0.02,-0.00,+0.40) px=14567 n/f=7565/7002 bands=-- nearC=214.8 farC=190.9 yawE=-0.096(d-0.018) rollE=-0.329 | cmd P=0.143 R=-0.100 Y=-0.061 T=+0.022 sat=-R-
+[GT] t= 22.05 no gate (decoded tags: [])
+[LF] t= 22.26 dt=  23ms alt=0.93 att=( -1.8, +3.6,  10.2)deg gyro(x,yaw,z)=(+0.10,+0.02,+0.39) px=14823 n/f=7923/6900 bands=-- nearC=247.8 farC=221.9 yawE=-0.102(d-0.020) rollE=-0.226 | cmd P=0.139 R=-0.090 Y=-0.065 T=+0.021 sat=---
+[GT] t= 22.26 no gate (decoded tags: [])
+[LF] t= 22.52 dt=  37ms alt=0.94 att=( -1.1, +3.3,   9.0)deg gyro(x,yaw,z)=(+0.02,-0.00,-0.26) px=14916 n/f=8186/6730 bands=-- nearC=298.6 farC=270.4 yawE=-0.111(d-0.029) rollE=-0.067 | cmd P=0.133 R=-0.027 Y=-0.073 T=+0.018 sat=---
+[GT] t= 22.52 no gate (decoded tags: [])
+[LF] t= 22.75 dt=  28ms alt=0.94 att=( -1.2, +0.6,   8.1)deg gyro(x,yaw,z)=(+0.01,-0.06,-0.17) px=15355 n/f=8282/7073 bands=-- nearC=328.5 farC=297.8 yawE=-0.121(d-0.033) rollE=+0.027 | cmd P=0.128 R=+0.011 Y=-0.079 T=+0.018 sat=---
+[GT] t= 22.75 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.94m
+[LF] t= 23.02 dt=  43ms alt=0.92 att=( -0.8, -0.9,   7.9)deg gyro(x,yaw,z)=(-0.02,-0.04,-0.08) px=15066 n/f=8134/6932 bands=-- nearC=308.8 farC=279.4 yawE=-0.117(d+0.028) rollE=-0.035 | cmd P=0.130 R=-0.019 Y=-0.064 T=+0.023 sat=---
+[GT] t= 23.02 no gate (decoded tags: [])
+[LF] t= 23.27 dt=  29ms alt=0.90 att=( +1.1, -1.1,   7.9)deg gyro(x,yaw,z)=(+0.27,-0.03,+0.04) px=15056 n/f=8795/6261 bands=-- nearC=290.3 farC=271.8 yawE=-0.074(d+0.150) rollE=-0.093 | cmd P=0.156 R=-0.047 Y=-0.014 T=+0.029 sat=---
+[GT] t= 23.27 no gate (decoded tags: [])
+[LF] t= 23.53 dt=  39ms alt=0.88 att=( +1.7, -0.6,   7.3)deg gyro(x,yaw,z)=(-0.15,-0.07,+0.06) px=14817 n/f=9024/5793 bands=-- nearC=290.4 farC=289.2 yawE=-0.005(d+0.285) rollE=-0.093 | cmd P=0.197 R=-0.031 Y=+0.054 T=+0.037 sat=---
+[GT] t= 23.53 no gate (decoded tags: [])
+[LF] t= 23.75 dt=  22ms alt=0.87 att=( +0.5, -0.2,   6.9)deg gyro(x,yaw,z)=(-0.14,-0.07,+0.00) px=14676 n/f=8996/5680 bands=-- nearC=297.6 farC=302.8 yawE=+0.021(d+0.140) rollE=-0.070 | cmd P=0.188 R=-0.028 Y=+0.040 T=+0.040 sat=---
+[GT] t= 23.75 no gate (decoded tags: [])
+[LF] t= 24.02 dt=  29ms alt=0.84 att=( -1.5, +0.8,   5.7)deg gyro(x,yaw,z)=(+0.05,+0.03,+0.12) px=15112 n/f=9125/5987 bands=-- nearC=313.6 farC=323.5 yawE=+0.039(d+0.083) rollE=-0.020 | cmd P=0.177 R=-0.008 Y=+0.040 T=+0.049 sat=---
+[GT] t= 24.02 no gate (decoded tags: [])
+[LF] t= 24.27 dt=  23ms alt=0.83 att=( +0.6, +1.3,   5.6)deg gyro(x,yaw,z)=(+0.18,+0.04,+0.05) px=15673 n/f=9332/6341 bands=-- nearC=330.2 farC=342.5 yawE=+0.049(d+0.032) rollE=+0.032 | cmd P=0.171 R=+0.013 Y=+0.036 T=+0.051 sat=---
+[GT] t= 24.27 no gate (decoded tags: [])
+[LF] t= 24.52 dt=  29ms alt=0.83 att=( +1.8, +1.1,   6.2)deg gyro(x,yaw,z)=(+0.06,+0.03,-0.03) px=15770 n/f=9198/6572 bands=-- nearC=357.3 farC=369.9 yawE=+0.049(d+0.011) rollE=+0.116 | cmd P=0.170 R=+0.047 Y=+0.032 T=+0.052 sat=---
+[GT] t= 24.52 no gate (decoded tags: [])
+[LF] t= 24.76 dt=  25ms alt=0.83 att=( +1.8, +0.8,   6.3)deg gyro(x,yaw,z)=(-0.03,-0.04,-0.01) px=15562 n/f=9031/6531 bands=-- nearC=375.2 farC=385.5 yawE=+0.040(d-0.003) rollE=+0.173 | cmd P=0.176 R=+0.072 Y=+0.024 T=+0.052 sat=---
+[GT] t= 24.76 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.84m
+[LF] t= 25.02 dt=  26ms alt=0.85 att=( +1.5, +1.2,   5.5)deg gyro(x,yaw,z)=(+0.00,-0.02,+0.04) px=15523 n/f=9044/6479 bands=-- nearC=380.7 farC=392.1 yawE=+0.045(d+0.017) rollE=+0.190 | cmd P=0.173 R=+0.081 Y=+0.030 T=+0.046 sat=---
+[GT] t= 25.02 no gate (decoded tags: [])
+[LF] t= 25.27 dt=  29ms alt=0.86 att=( +1.2, +1.2,   5.6)deg gyro(x,yaw,z)=(-0.09,+0.10,-0.04) px=15573 n/f=9115/6458 bands=-- nearC=388.9 farC=401.8 yawE=+0.052(d+0.020) rollE=+0.215 | cmd P=0.169 R=+0.093 Y=+0.035 T=+0.041 sat=---
+[GT] t= 25.27 no gate (decoded tags: [])
+[LF] t= 25.50 dt=  45ms alt=0.87 att=( +0.2, +1.2,   6.2)deg gyro(x,yaw,z)=(-0.11,+0.09,+0.00) px=15684 n/f=9174/6510 bands=-- nearC=390.0 farC=401.7 yawE=+0.046(d-0.010) rollE=+0.219 | cmd P=0.172 R=+0.088 Y=+0.026 T=+0.038 sat=---
+[GT] t= 25.50 no gate (decoded tags: [])
+[LF] t= 25.76 dt=  36ms alt=0.88 att=( -0.6, +0.4,   7.0)deg gyro(x,yaw,z)=(+0.03,+0.07,-0.08) px=16052 n/f=9526/6526 bands=-- nearC=392.3 farC=397.0 yawE=+0.019(d-0.067) rollE=+0.226 | cmd P=0.189 R=+0.090 Y=-0.002 T=+0.037 sat=---
+[GT] t= 25.76 no gate (decoded tags: [])
+[LF] t= 26.00 dt=  30ms alt=0.87 att=( -0.6, -0.6,   7.9)deg gyro(x,yaw,z)=(-0.02,+0.04,-0.06) px=16895 n/f=10055/6840 bands=-- nearC=389.7 farC=385.3 yawE=-0.017(d-0.168) rollE=+0.218 | cmd P=0.190 R=+0.078 Y=-0.044 T=+0.039 sat=---
+[GT] t= 26.00 no gate (decoded tags: [])
+[LF] t= 26.27 dt=  21ms alt=0.86 att=( -1.4, -1.0,   8.7)deg gyro(x,yaw,z)=(-0.07,+0.08,-0.03) px=17179 n/f=10123/7056 bands=-- nearC=381.0 farC=367.0 yawE=-0.057(d-0.133) rollE=+0.191 | cmd P=0.166 R=+0.076 Y=-0.061 T=+0.042 sat=---
+[GT] t= 26.27 no gate (decoded tags: [])
+[LF] t= 26.56 dt=  70ms alt=0.86 att=( -1.5, -1.0,   8.8)deg gyro(x,yaw,z)=(-0.06,+0.08,+0.00) px=17276 n/f=9767/7509 bands=-- nearC=376.7 farC=349.6 yawE=-0.112(d-0.181) rollE=+0.177 | cmd P=0.133 R=+0.066 Y=-0.103 T=+0.042 sat=---
+[GT] t= 26.56 no gate (decoded tags: [])
+[LF] t= 26.76 dt=  39ms alt=0.86 att=( -1.5, -1.0,   8.8)deg gyro(x,yaw,z)=(-0.06,+0.08,+0.00) px=19160 n/f=9956/9204 bands=-- nearC=404.1 farC=358.5 yawE=-0.178(d-0.253) rollE=+0.263 | cmd P=0.093 R=+0.100 Y=-0.157 T=+0.042 sat=-R-
+[GT] t= 26.76 no gate (decoded tags: [])
+[LF] t= 27.05 dt=  57ms alt=0.86 att=( -1.5, -0.9,   8.9)deg gyro(x,yaw,z)=(-0.03,+0.07,+0.05) px=18842 n/f=9866/8976 bands=-- nearC=382.6 farC=332.6 yawE=-0.191(d-0.053) rollE=+0.196 | cmd P=0.086 R=+0.068 Y=-0.125 T=+0.043 sat=---
+[GT] t= 27.05 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.86m
+[LF] t= 27.27 dt=  33ms alt=0.85 att=( -1.5, -0.4,   9.4)deg gyro(x,yaw,z)=(+0.02,+0.09,+0.17) px=18524 n/f=9878/8646 bands=-- nearC=375.9 farC=327.5 yawE=-0.185(d+0.007) rollE=+0.175 | cmd P=0.089 R=+0.070 Y=-0.110 T=+0.045 sat=---
+[GT] t= 27.27 no gate (decoded tags: [])
+[LF] t= 27.51 dt=  17ms alt=0.82 att=( -8.5, +0.5,  10.2)deg gyro(x,yaw,z)=(+0.17,-0.01,+0.07) px=16655 n/f=9502/7153 bands=-- nearC=398.6 farC=366.9 yawE=-0.130(d+0.194) rollE=+0.246 | cmd P=0.122 R=+0.100 Y=-0.039 T=+0.054 sat=-R-
+[GT] t= 27.51 no gate (decoded tags: [])
+[LF] t= 27.76 dt=  44ms alt=0.82 att=( -1.8, +3.5,  10.5)deg gyro(x,yaw,z)=(+0.53,+0.03,+0.44) px=17175 n/f=9632/7543 bands=-- nearC=413.0 farC=379.6 yawE=-0.135(d-0.001) rollE=+0.290 | cmd P=0.119 R=+0.100 Y=-0.081 T=+0.054 sat=-R-
+[GT] t= 27.76 no gate (decoded tags: [])
+[LF] t= 28.01 dt=  34ms alt=0.83 att=( +1.7, +8.0,  10.8)deg gyro(x,yaw,z)=(-0.07,+0.02,-0.17) px=20364 n/f=10658/9706 bands=-- nearC=447.7 farC=395.0 yawE=-0.206(d-0.225) rollE=+0.399 | cmd P=0.077 R=+0.100 Y=-0.168 T=+0.051 sat=-R-
+[GT] t= 28.01 no gate (decoded tags: [])
+[LF] t= 28.27 dt=  18ms alt=0.83 att=( +0.1, +0.7,   9.6)deg gyro(x,yaw,z)=(-0.12,-0.04,-0.56) px=19029 n/f=10100/8929 bands=-- nearC=386.8 farC=340.9 yawE=-0.182(d+0.165) rollE=+0.209 | cmd P=0.091 R=-0.059 Y=-0.076 T=+0.051 sat=---
+[GT] t= 28.27 no gate (decoded tags: [])
+[LF] t= 28.51 dt=  39ms alt=0.82 att=( -0.7, -3.4,   6.6)deg gyro(x,yaw,z)=(-0.10,-0.02,+0.00) px=16853 n/f=9127/7726 bands=-- nearC=309.6 farC=271.2 yawE=-0.153(d+0.108) rollE=-0.032 | cmd P=0.108 R=-0.035 Y=-0.070 T=+0.054 sat=---
+[GT] t= 28.51 no gate (decoded tags: [])
+[LF] t= 28.78 dt=  40ms alt=0.81 att=( -2.7, -2.4,   3.7)deg gyro(x,yaw,z)=(-0.09,-0.05,+0.14) px=16288 n/f=9266/7022 bands=-- nearC=274.6 farC=237.5 yawE=-0.147(d+0.038) rollE=-0.142 | cmd P=0.112 R=-0.064 Y=-0.081 T=+0.058 sat=---
+[GT] t= 28.78 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.79m
+[LF] t= 29.02 dt=  29ms alt=0.79 att=( -2.9, -0.8,   1.8)deg gyro(x,yaw,z)=(+0.04,-0.13,+0.07) px=16014 n/f=8822/7192 bands=-- nearC=273.4 farC=238.2 yawE=-0.140(d+0.037) rollE=-0.146 | cmd P=0.116 R=-0.056 Y=-0.077 T=+0.063 sat=---
+[GT] t= 29.02 no gate (decoded tags: [])
+[LF] t= 29.27 dt=  19ms alt=0.78 att=( -2.1, -0.0,   0.2)deg gyro(x,yaw,z)=(+0.01,-0.10,+0.00) px=16071 n/f=8450/7621 bands=-- nearC=276.1 farC=247.5 yawE=-0.113(d+0.140) rollE=-0.137 | cmd P=0.132 R=-0.055 Y=-0.040 T=+0.067 sat=---
+[GT] t= 29.27 no gate (decoded tags: [])
+[LF] t= 29.54 dt=  41ms alt=0.78 att=( -1.8, +0.1, 359.3)deg gyro(x,yaw,z)=(-0.01,-0.07,-0.02) px=15830 n/f=8195/7635 bands=-- nearC=276.9 farC=255.3 yawE=-0.084(d+0.101) rollE=-0.135 | cmd P=0.149 R=-0.054 Y=-0.030 T=+0.065 sat=---
+[GT] t= 29.54 no gate (decoded tags: [])
+[LF] t= 29.79 dt=  52ms alt=0.81 att=( -2.9, -0.1, 358.6)deg gyro(x,yaw,z)=(-0.11,-0.08,-0.03) px=15402 n/f=8094/7308 bands=-- nearC=280.2 farC=262.7 yawE=-0.068(d+0.071) rollE=-0.124 | cmd P=0.159 R=-0.048 Y=-0.026 T=+0.058 sat=---
+[GT] t= 29.79 no gate (decoded tags: [])
+[LF] t= 30.05 dt=  61ms alt=0.83 att=( -3.7, +0.3, 357.5)deg gyro(x,yaw,z)=(+0.02,-0.10,+0.01) px=14975 n/f=8114/6861 bands=-- nearC=287.8 farC=272.4 yawE=-0.060(d+0.049) rollE=-0.101 | cmd P=0.164 R=-0.038 Y=-0.026 T=+0.050 sat=---
+[GT] t= 30.05 no gate (decoded tags: [])
+[LF] t= 30.26 dt=  36ms alt=0.85 att=( -3.3, +0.7, 356.8)deg gyro(x,yaw,z)=(+0.10,-0.15,+0.07) px=14679 n/f=7983/6696 bands=-- nearC=293.5 farC=279.2 yawE=-0.055(d+0.030) rollE=-0.083 | cmd P=0.167 R=-0.033 Y=-0.027 T=+0.046 sat=---
+[GT] t= 30.26 no gate (decoded tags: [])
+[LF] t= 30.52 dt=  24ms alt=0.88 att=( -2.1, +1.2, 355.3)deg gyro(x,yaw,z)=(+0.07,-0.07,-0.01) px=14756 n/f=7947/6809 bands=-- nearC=304.3 farC=293.8 yawE=-0.040(d+0.036) rollE=-0.049 | cmd P=0.176 R=-0.020 Y=-0.017 T=+0.036 sat=---
+[GT] t= 30.52 no gate (decoded tags: [])
+[LF] t= 30.76 dt=  34ms alt=0.94 att=( -2.0, +1.2, 353.6)deg gyro(x,yaw,z)=(-0.08,-0.03,-0.04) px=14665 n/f=7742/6923 bands=-- nearC=316.8 farC=311.8 yawE=-0.019(d+0.063) rollE=-0.010 | cmd P=0.189 R=-0.004 Y=+0.001 T=+0.019 sat=---
+[GT] t= 30.76 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.95m
+[LF] t= 31.00 dt=  22ms alt=0.97 att=( -3.1, +1.3, 353.0)deg gyro(x,yaw,z)=(-0.07,-0.00,-0.03) px=14205 n/f=7476/6729 bands=-- nearC=331.1 farC=329.7 yawE=-0.005(d+0.070) rollE=+0.035 | cmd P=0.197 R=+0.048 Y=+0.011 T=+0.008 sat=---
+[GT] t= 31.00 no gate (decoded tags: [])
+[LF] t= 31.26 dt=  32ms alt=1.01 att=( -3.0, +1.2, 352.9)deg gyro(x,yaw,z)=(+0.05,+0.01,-0.02) px=14128 n/f=7554/6574 bands=-- nearC=346.0 farC=343.4 yawE=-0.010(d-0.009) rollE=+0.081 | cmd P=0.194 R=+0.033 Y=-0.008 T=-0.003 sat=---
+[GT] t= 31.26 no gate (decoded tags: [])
+[LF] t= 31.51 dt=  27ms alt=1.04 att=( -2.8, +0.9, 352.9)deg gyro(x,yaw,z)=(-0.03,+0.00,+0.06) px=13799 n/f=7421/6378 bands=-- nearC=356.3 farC=352.7 yawE=-0.014(d-0.008) rollE=+0.114 | cmd P=0.192 R=+0.054 Y=-0.010 T=-0.012 sat=---
+[GT] t= 31.51 no gate (decoded tags: [])
+[LF] t= 31.77 dt=  21ms alt=1.06 att=( -3.0, +1.6, 352.7)deg gyro(x,yaw,z)=(-0.03,+0.03,+0.04) px=13637 n/f=7333/6304 bands=-- nearC=363.6 farC=358.9 yawE=-0.018(d-0.015) rollE=+0.136 | cmd P=0.189 R=+0.054 Y=-0.014 T=-0.017 sat=---
+[GT] t= 31.77 no gate (decoded tags: [])
+[LF] t= 32.03 dt=  36ms alt=1.06 att=( -3.0, +1.8, 353.3)deg gyro(x,yaw,z)=(+0.00,+0.06,-0.00) px=13788 n/f=7450/6338 bands=-- nearC=374.5 farC=369.5 yawE=-0.019(d-0.002) rollE=+0.170 | cmd P=0.189 R=+0.068 Y=-0.012 T=-0.017 sat=---
+[GT] t= 32.03 no gate (decoded tags: [])
+[LF] t= 32.25 dt=  16ms alt=1.05 att=( -3.1, +1.3, 354.3)deg gyro(x,yaw,z)=(-0.03,+0.09,-0.05) px=13920 n/f=7542/6378 bands=-- nearC=395.6 farC=389.9 yawE=-0.022(d-0.007) rollE=+0.236 | cmd P=0.187 R=+0.095 Y=-0.014 T=-0.016 sat=---
+[GT] t= 32.25 no gate (decoded tags: [])
+[LF] t= 32.52 dt=  40ms alt=1.04 att=( -3.4, +1.6, 355.2)deg gyro(x,yaw,z)=(+0.04,+0.06,+0.11) px=14035 n/f=7601/6434 bands=-- nearC=407.0 farC=396.9 yawE=-0.038(d-0.055) rollE=+0.272 | cmd P=0.177 R=+0.100 Y=-0.034 T=-0.011 sat=-R-
+[GT] t= 32.52 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=1.03m
+[LF] t= 32.75 dt=  64ms alt=1.02 att=( -2.9, +2.2, 355.8)deg gyro(x,yaw,z)=(-0.03,+0.04,+0.01) px=14165 n/f=7727/6438 bands=-- nearC=420.9 farC=407.9 yawE=-0.050(d-0.049) rollE=+0.315 | cmd P=0.170 R=+0.100 Y=-0.040 T=-0.006 sat=-R-
+[GT] t= 32.75 no gate (decoded tags: [])
+[LF] t= 33.05 dt=  47ms alt=1.00 att=( -3.0, +1.8, 355.9)deg gyro(x,yaw,z)=(-0.02,+0.01,-0.09) px=14505 n/f=7803/6702 bands=-- nearC=434.6 farC=420.1 yawE=-0.056(d-0.027) rollE=+0.358 | cmd P=0.167 R=+0.100 Y=-0.039 T=-0.001 sat=-R-
+[GT] t= 33.05 no gate (decoded tags: [])
+[LF] t= 33.28 dt=  35ms alt=0.99 att=( -3.2, +1.3, 356.0)deg gyro(x,yaw,z)=(-0.03,+0.03,+0.00) px=14809 n/f=7834/6975 bands=-- nearC=437.3 farC=425.3 yawE=-0.046(d+0.029) rollE=+0.367 | cmd P=0.172 R=+0.100 Y=-0.022 T=+0.002 sat=-R-
+[GT] t= 33.28 no gate (decoded tags: [])
+[LF] t= 33.51 dt=  43ms alt=0.98 att=( -2.9, +2.3, 356.5)deg gyro(x,yaw,z)=(+0.06,+0.09,+0.14) px=14611 n/f=7580/7031 bands=-- nearC=431.3 farC=421.5 yawE=-0.039(d+0.024) rollE=+0.348 | cmd P=0.177 R=+0.100 Y=-0.018 T=+0.006 sat=-R-
+[GT] t= 33.51 no gate (decoded tags: [])
+[LF] t= 33.76 dt=  27ms alt=0.96 att=( -2.3, +3.2, 357.9)deg gyro(x,yaw,z)=(-0.02,+0.05,+0.05) px=15375 n/f=7969/7406 bands=-- nearC=435.2 farC=425.7 yawE=-0.038(d-0.006) rollE=+0.360 | cmd P=0.177 R=+0.100 Y=-0.024 T=+0.011 sat=-R-
+[GT] t= 33.76 no gate (decoded tags: [])
+[LF] t= 34.00 dt=  20ms alt=0.92 att=( -3.3, +2.3, 357.9)deg gyro(x,yaw,z)=(-0.13,-0.06,-0.04) px=15765 n/f=8648/7117 bands=-- nearC=438.9 farC=426.0 yawE=-0.052(d-0.068) rollE=+0.371 | cmd P=0.169 R=+0.100 Y=-0.045 T=+0.025 sat=-R-
+[GT] t= 34.00 no gate (decoded tags: [])
+[LF] t= 34.28 dt=  37ms alt=0.90 att=( -4.4, +1.6, 356.2)deg gyro(x,yaw,z)=(-0.08,-0.24,-0.09) px=16092 n/f=9007/7085 bands=-- nearC=425.5 farC=411.3 yawE=-0.057(d-0.017) rollE=+0.330 | cmd P=0.166 R=+0.100 Y=-0.037 T=+0.031 sat=-R-
+[GT] t= 34.28 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=0.90m
+[LF] t= 34.52 dt=  35ms alt=0.91 att=( -4.1, +0.3, 348.8)deg gyro(x,yaw,z)=(+0.11,-0.44,-0.09) px=16868 n/f=9025/7843 bands=-- nearC=389.9 farC=377.9 yawE=-0.048(d+0.043) rollE=+0.219 | cmd P=0.171 R=+0.048 Y=-0.020 T=+0.028 sat=---
+[GT] t= 34.52 no gate (decoded tags: [])
+[LF] t= 34.78 dt=  41ms alt=0.93 att=( -3.2, -0.7, 343.1)deg gyro(x,yaw,z)=(+0.02,-0.35,-0.12) px=17594 n/f=9115/8479 bands=-- nearC=340.6 farC=339.2 yawE=-0.006(d+0.164) rollE=+0.065 | cmd P=0.197 R=-0.004 Y=+0.029 T=+0.020 sat=---
+[GT] t= 34.78 no gate (decoded tags: [])
+[LF] t= 35.00 dt=  28ms alt=0.95 att=( -2.7, -1.2, 339.7)deg gyro(x,yaw,z)=(-0.04,-0.21,+0.01) px=15852 n/f=8890/6962 bands=-- nearC=277.8 farC=309.3 yawE=+0.125(d+0.537) rollE=-0.132 | cmd P=0.125 R=-0.098 Y=+0.182 T=+0.014 sat=---
+[GT] t= 35.00 no gate (decoded tags: [])
+[LF] t= 35.26 dt=  25ms alt=0.97 att=( -3.5, -0.9, 338.8)deg gyro(x,yaw,z)=(+0.01,+0.01,+0.10) px=14178 n/f=8333/5845 bands=-- nearC=216.4 farC=303.5 yawE=+0.330(d+0.576) rollE=-0.324 | cmd P=0.002 R=-0.100 Y=+0.313 T=+0.010 sat=-R-
+[GT] t= 35.26 no gate (decoded tags: [])
+[LF] t= 35.53 dt=  64ms alt=0.98 att=( -2.3, -0.5, 342.6)deg gyro(x,yaw,z)=(+0.12,+0.41,+0.07) px=13209 n/f=7815/5394 bands=-- nearC=197.7 farC=294.5 yawE=+0.351(d+0.128) rollE=-0.382 | cmd P=0.000 R=-0.100 Y=+0.236 T=+0.005 sat=-R-
+[GT] t= 35.53 no gate (decoded tags: [])
+[LF] t= 35.75 dt=  28ms alt=0.99 att=( -1.7, +0.1, 347.9)deg gyro(x,yaw,z)=(+0.01,+0.50,+0.08) px=13231 n/f=7636/5595 bands=-- nearC=198.7 farC=287.8 yawE=+0.323(d-0.084) rollE=-0.379 | cmd P=0.006 R=-0.100 Y=+0.177 T=+0.002 sat=-R-
+[GT] t= 35.75 no gate (decoded tags: [])
+[LF] t= 36.01 dt=  17ms alt=1.01 att=( -2.1, +1.0, 354.4)deg gyro(x,yaw,z)=(-0.09,+0.33,+0.00) px=13113 n/f=7220/5893 bands=-- nearC=204.4 farC=278.0 yawE=+0.263(d-0.126) rollE=-0.361 | cmd P=0.042 R=-0.100 Y=+0.133 T=-0.002 sat=-R-
+[GT] t= 36.01 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=1.01m
+[LF] t= 36.31 dt=  64ms alt=1.01 att=( -3.2, +0.3, 358.3)deg gyro(x,yaw,z)=(-0.04,+0.16,-0.05) px=12187 n/f=6259/5928 bands=-- nearC=236.3 farC=250.1 yawE=+0.055(d-0.425) rollE=-0.261 | cmd P=0.167 R=-0.083 Y=-0.052 T=-0.004 sat=---
+[GT] t= 36.31 no gate (decoded tags: [])
+[LF] t= 36.51 dt=  22ms alt=1.01 att=( -3.6, -0.1, 359.1)deg gyro(x,yaw,z)=(-0.10,+0.11,-0.06) px=12460 n/f=6333/6127 bands=-- nearC=238.4 farC=246.0 yawE=+0.031(d-0.143) rollE=-0.255 | cmd P=0.182 R=-0.100 Y=-0.010 T=-0.004 sat=-R-
+[GT] t= 36.51 no gate (decoded tags: [])
+[LF] t= 36.79 dt=  46ms alt=1.02 att=( -4.9, -0.4, 359.3)deg gyro(x,yaw,z)=(+0.03,-0.10,-0.01) px=16125 n/f=8044/8081 bands=-- nearC=222.3 farC=134.7 yawE=-0.350(d-0.906) rollE=-0.305 | cmd P=0.000 R=-0.100 Y=-0.350 T=-0.006 sat=YR-
+[GT] t= 36.79 no gate (decoded tags: [])
+[LF] t= 37.04 dt=  53ms alt=1.02 att=( -4.5, +0.1, 358.7)deg gyro(x,yaw,z)=(+0.14,-0.10,+0.10) px=18450 n/f=8401/10049 bands=-- nearC=212.1 farC= 94.5 yawE=-0.426(d-0.324) rollE=-0.337 | cmd P=0.000 R=-0.100 Y=-0.320 T=-0.006 sat=-R-
+[GT] t= 37.04 no gate (decoded tags: [])
+[LF] t= 37.26 dt=  25ms alt=1.01 att=( +7.1, -0.1, 357.7)deg gyro(x,yaw,z)=(+0.80,+0.01,-0.04) px=13566 n/f=8129/5437 bands=-- nearC=187.6 farC= 65.4 yawE=-0.532(d-0.389) rollE=-0.414 | cmd P=0.000 R=-0.100 Y=-0.350 T=-0.004 sat=YR-
+[GT] t= 37.26 no gate (decoded tags: [])
+[LF] t= 37.50 dt=  22ms alt=1.02 att=(+19.0, -1.4, 357.1)deg gyro(x,yaw,z)=(-0.06,+0.10,-0.09) px=11564 n/f=8539/3025 bands=-- nearC=160.6 farC= 42.6 yawE=-0.627(d-0.241) rollE=-0.498 | cmd P=0.000 R=-0.100 Y=-0.350 T=-0.007 sat=YR-
+[GT] t= 37.50 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=1.03m
+[EVT] t=37.72 bands=-F (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[LF] t= 37.76 dt=  47ms alt=1.03 att=(+11.3, -0.7, 358.4)deg gyro(x,yaw,z)=(-0.87,+0.06,+0.01) px=3679 n/f=3679/0 bands=-F nearC= 35.7 farC= 35.7 yawE=-0.508(d-0.017) rollE=-0.889 | cmd P=0.000 R=-0.100 Y=-0.308 T=-0.008 sat=-R-
+[GT] t= 37.76 no gate (decoded tags: [])
+[LF] t= 38.01 dt=  27ms alt=1.02 att=( -1.9, -0.4, 359.1)deg gyro(x,yaw,z)=(-0.88,-0.01,+0.05) px=4059 n/f=4059/0 bands=-F nearC= 40.9 farC= 40.9 yawE=-0.129(d-0.001) rollE=-0.872 | cmd P=0.123 R=-0.100 Y=-0.078 T=-0.006 sat=-R-
+[GT] t= 38.01 no gate (decoded tags: [])
+[LF] t= 38.26 dt=  20ms alt=1.02 att=(-12.5, -0.1, 359.2)deg gyro(x,yaw,z)=(-0.51,-0.03,+0.06) px=8320 n/f=8320/0 bands=-F nearC=102.9 farC=102.9 yawE=-0.027(d-0.000) rollE=-0.678 | cmd P=0.184 R=-0.100 Y=-0.016 T=-0.007 sat=-R-
+[GT] t= 38.26 no gate (decoded tags: [])
+[EVT] t=38.40 bands=-- (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[LF] t= 38.51 dt=  20ms alt=1.03 att=(-14.7, +0.3, 358.9)deg gyro(x,yaw,z)=(+0.09,-0.04,+0.09) px=12140 n/f=7561/4579 bands=-- nearC=190.0 farC= 58.0 yawE=-0.582(d+0.962) rollE=-0.406 | cmd P=0.000 R=-0.086 Y=-0.157 T=-0.010 sat=---
+[GT] t= 38.51 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=1.04m
+[LF] t= 38.75 dt=  18ms alt=1.04 att=( -6.5, +0.1, 357.3)deg gyro(x,yaw,z)=(+1.54,-0.01,-0.30) px=14492 n/f=7012/7480 bands=-- nearC=213.1 farC= 77.8 yawE=-0.513(d+0.193) rollE=-0.334 | cmd P=0.000 R=-0.100 Y=-0.269 T=-0.012 sat=-R-
+[GT] t= 38.75 no gate (decoded tags: [])
+[LF] t= 39.00 dt=  14ms alt=1.04 att=( -1.8, -2.4, 357.2)deg gyro(x,yaw,z)=(-0.11,-0.04,-0.37) px=14555 n/f=6961/7594 bands=-- nearC=217.0 farC= 81.0 yawE=-0.516(d-0.047) rollE=-0.322 | cmd P=0.000 R=-0.100 Y=-0.319 T=-0.012 sat=-R-
+[GT] t= 39.00 no gate (decoded tags: [])
+[LF] t= 39.25 dt=  16ms alt=1.04 att=( -5.0, -8.9, 354.5)deg gyro(x,yaw,z)=(-0.07,-0.32,-0.40) px=13958 n/f=7210/6748 bands=-- nearC=214.4 farC= 77.5 yawE=-0.537(d-0.047) rollE=-0.330 | cmd P=0.000 R=-0.100 Y=-0.331 T=-0.013 sat=-R-
+[GT] t= 39.25 no gate (decoded tags: [])
+[EVT] t=39.49 bands=-F (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[LF] t= 39.50 dt=  17ms alt=1.05 att=( -5.4,-10.0, 353.1)deg gyro(x,yaw,z)=(-0.05,-0.34,-0.25) px=8495 n/f=8495/0 bands=-F nearC= 95.9 farC= 95.9 yawE=-0.539(d-0.210) rollE=-0.700 | cmd P=0.000 R=-0.100 Y=-0.350 T=-0.014 sat=YR-
+[GT] t= 39.50 no gate (decoded tags: [])
+[LF] t= 39.76 dt=  13ms alt=1.05 att=( -5.8,-10.8, 349.6)deg gyro(x,yaw,z)=(+0.09,-0.35,-0.04) px=6352 n/f=6352/0 bands=-F nearC= 58.4 farC= 58.4 yawE=-0.152(d-0.014) rollE=-0.818 | cmd P=0.109 R=-0.100 Y=-0.094 T=-0.014 sat=-R-
+[GT] t= 39.76 no gate (decoded tags: [])
+[Step 3: Follow the Line] height=1.05m
+[LF] t= 40.01 dt=  39ms alt=1.04 att=( -4.7, -9.1, 345.0)deg gyro(x,yaw,z)=(+0.23,-0.43,+0.32) px=5825 n/f=5825/0 bands=-F nearC= 60.7 farC= 60.7 yawE=-0.035(d-0.001) rollE=-0.810 | cmd P=0.179 R=-0.100 Y=-0.021 T=-0.012 sat=-R-
+[GT] t= 40.01 no gate (decoded tags: [])
+[LF] t= 40.26 dt=  18ms alt=1.02 att=( -3.5, -2.9, 340.0)deg gyro(x,yaw,z)=(+0.16,-0.43,+0.57) px=6679 n/f=6679/0 bands=-F nearC= 91.5 farC= 91.5 yawE=-0.008(d-0.000) rollE=-0.714 | cmd P=0.195 R=-0.100 Y=-0.005 T=-0.006 sat=-R-
+[GT] t= 40.26 no gate (decoded tags: [])
+[LF] t= 40.50 dt=  16ms alt=0.99 att=( +4.9, +3.6, 335.6)deg gyro(x,yaw,z)=(+0.54,-0.14,+0.13) px=1371 n/f=1371/0 bands=-F nearC= 31.1 farC= 31.1 yawE=-0.002(d-0.000) rollE=-0.903 | cmd P=0.199 R=-0.100 Y=-0.001 T=+0.002 sat=-R-
+[GT] t= 40.50 no gate (decoded tags: [])
+[EVT] t=40.56 line lost (px=0 < 200) search_yaw=-0.10
+[Step 3: Follow the Line] height=0.90m
+[Step 3: Follow the Line] height=0.65m
+[Step 3: Follow the Line] height=0.51m
+[Step 3: Follow the Line] height=0.39m
+[Step 3: Follow the Line] height=0.22m
+[EVT] t=46.46 line reacquired after 5.92s (px=650)
+[EVT] t=46.46 bands=-- (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[LF] t= 46.52 dt=  27ms alt=0.18 att=( -0.4, +3.7, 300.6)deg gyro(x,yaw,z)=(-0.07,+0.03,+0.12) px=796 n/f=93/703 bands=-- nearC= 10.4 farC= 15.4 yawE=+0.020(d+0.080) rollE=-0.967 | cmd P=0.188 R=-0.100 Y=+0.028 T=+0.247 sat=-R-
+[GT] t= 46.52 no gate (decoded tags: [])
+[EVT] t=46.57 tags in view: mapped=[47] unmapped=[] tags(id,cx,cy,px)=[(47, 141, 61, 31.2)]
+[Step 3: Follow the Line] height=0.17m
+[EVT] t=46.72 tags in view: mapped=[46] unmapped=[] tags(id,cx,cy,px)=[(46, 315, 236, 30.5)]
+[LF] t= 46.77 dt=  58ms alt=0.17 att=( -2.5, +3.5, 301.1)deg gyro(x,yaw,z)=(-0.13,+0.00,-0.15) px=7349 n/f=1726/5623 bands=-- nearC= 20.5 farC= 25.6 yawE=+0.020(d-0.032) rollE=-0.936 | cmd P=0.020 R=-0.100 Y=-0.003 T=+0.425 sat=-R-
+[GT] t= 46.77 ids=[46] n=1 cx=315.2 cy=104.3 tag_px= 30.5 span= 303.3 close= -4.4px/s age=0.06s rotE=-0.015 w=0.76 altE=+0.565 (P=+0.170 I=+0.008 D=+0.000) thH=+0.177 thL=+0.248 hold=0.00
+[LF] t= 47.04 dt=  44ms alt=0.20 att=( -2.4, -0.8, 300.6)deg gyro(x,yaw,z)=(+0.07,-0.01,-0.04) px=967 n/f=296/671 bands=-- nearC= 11.4 farC= 15.4 yawE=+0.015(d-0.027) rollE=-0.964 | cmd P=0.020 R=-0.100 Y=-0.005 T=+0.416 sat=-R-
+[GT] t= 47.04 ids=[46] n=1 cx=313.8 cy=111.8 tag_px= 30.5 span= 303.3 close= -0.0px/s age=0.04s rotE=-0.020 w=0.76 altE=+0.534 (P=+0.160 I=+0.015 D=+0.000) thH=+0.175 thL=+0.241 hold=0.00
+[EVT] t=47.19 line lost (px=40 < 200) search_yaw=+0.00
+[Step 3: Follow the Line] height=0.21m
+[Step 3: Follow the Line] height=0.22m
+[Step 3: Follow the Line] height=0.23m
+[Step 3: Follow the Line] height=0.21m
+[Step 3: Follow the Line] height=0.21m
+[Step 3: Follow the Line] height=0.21m
+[Step 3: Follow the Line] height=0.21m
+[Step 3: Follow the Line] height=0.22m
+[EVT] t=57.37 line reacquired after 10.18s (px=517)
+[EVT] t=57.51 tags in view: mapped=[] unmapped=[] tags(id,cx,cy,px)=[]
+[LF] t= 57.51 dt=  56ms alt=0.20 att=( -1.5, -0.0, 299.3)deg gyro(x,yaw,z)=(+0.01,-0.03,-0.01) px=11719 n/f=7945/3774 bands=-- nearC= 25.8 farC= 16.5 yawE=-0.028(d-0.146) rollE=-0.919 | cmd P=0.183 R=-0.100 Y=-0.046 T=+0.241 sat=-R-
+[GT] t= 57.51 no gate (decoded tags: [])
+[LF] t= 57.77 dt=  52ms alt=0.18 att=( -0.2, +0.0, 299.4)deg gyro(x,yaw,z)=(+0.09,+0.08,-0.06) px=81674 n/f=60294/21380 bands=-- nearC=387.6 farC=171.0 yawE=-0.666(d-0.675) rollE=+0.211 | cmd P=0.000 R=+0.084 Y=-0.350 T=+0.246 sat=Y--
+[GT] t= 57.77 no gate (decoded tags: [])
+[LF] t= 58.00 dt=  19ms alt=0.18 att=( +0.0, -1.1, 299.7)deg gyro(x,yaw,z)=(-0.01,-0.06,-0.04) px=31652 n/f=12536/19116 bands=-- nearC=569.7 farC=451.8 yawE=-0.733(d-0.366) rollE=+0.780 | cmd P=0.000 R=+0.100 Y=-0.350 T=+0.247 sat=YR-
+[GT] t= 58.00 no gate (decoded tags: [])
+[EVT] t=58.09 bands=N- (N=near empty, F=far empty; on an empty band yawErr holds its last value, decaying)
+[EVT] t=58.22 line lost (px=0 < 200) search_yaw=+0.00
+[Step 3: Follow the Line] height=0.17m
+[Step 3: Follow the Line] height=0.11m
+[Step 3: Follow the Line] height=0.01m
+[Step 3: Follow the Line] height=0.01m
+[Step 3: Follow the Line] height=0.01m
+[Step 3: Follow the Line] height=0.01m
+Traceback (most recent call last):
+  File "/home/bwsi/jupyter_ws/CAPVY/labs/week2_vision/module3_linear_regression/main.py", line 32, in <module>
+    neo_lab.run_module("Week 2 · Module 3 — Linear Regression (Line Following)", [
+  File "/home/bwsi/jupyter_ws/CAPVY/labs/neo_lab.py", line 445, in run_module
+    drone.go(_autostart_enabled(autostart, drone))
+  File "/home/bwsi/jupyter_ws/uav-neo-library/library/real/drone_core_real.py", line 128, in go
+    ros2.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+    context.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
