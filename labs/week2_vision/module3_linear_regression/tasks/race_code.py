@@ -91,10 +91,10 @@ SLOT_OFFSET = {
 
 # Course map: tag id -> (gate number, slot). Fill this in and let it rip.
 TAG_MAP = {
-    0: (1, "t"),
+    48: (1, "t"),
     1: (1, "b"),
     2: (1, "l"),
-    3: (1, "r"),
+    46: (1, "r"),
 }
 
 def pid_control(err, err_int, err_dot, kp, ki, kd):

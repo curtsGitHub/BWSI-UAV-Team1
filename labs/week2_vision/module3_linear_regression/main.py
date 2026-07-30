@@ -25,10 +25,10 @@ from tasks import (
     step3_follow_line,
     step3_follow_linePIDWORKING,
     step3_follow_linePIDGATE,
-    raceCode,
+    race_code,
     gateDetect
 )
 
 neo_lab.run_module("Week 2 · Module 3 — Linear Regression (Line Following)", [
-    ("Step 3: Follow the Line", raceCode),
+    ("Step 3: Follow the Line", race_code),
 ], autostart=True, launch_height=1, launch=False)
