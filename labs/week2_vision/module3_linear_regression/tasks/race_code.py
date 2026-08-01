@@ -20,7 +20,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.2 side-tag-bias + real-gate-dims"
+CODE_VERSION = "2026-08-01.3 yaw-detune"
 
 
 def _make_logger():
@@ -90,8 +90,10 @@ MAX_ROLL      = 0.10     # REVERTED from 0.30 after flight 2026-08-01: at 0.3 th
                          # altitude coupling, ended on the floor). 0.1 keeps the limit
                          # cycle bounded. Don't raise again until yaw authority works or
                          # the vision errors are tilt-compensated.
-MAX_YAW       = 0.5      # real drone: 0.5 * 0.5 rad/s = 0.25 rad/s -> ~0.4 m turn radius
-                         # at FORWARD_PITCH speed (0.1 m/s); widen if curves allow
+MAX_YAW       = 0.15     # measured 2026-08-01: full stick is ~1.8-2 rad/s on the real
+                         # drone (~4x the nominal 0.5 in flight_real.py -- mux scaling),
+                         # so 0.15 ~= 0.3 rad/s. At 0.5 the yaw loop bang-banged and
+                         # swept the camera through the line (all three flight logs).
 IMAGE_CENTER  = 320      # 640-wide image -> center column
 LOOKAHEAD_FRAC = 0.4     # split the line into a far (yaw) part and a near (roll) part
 LOST_TIME     = 3.0      # land after the line has been out of view this long (its end)
@@ -503,14 +505,16 @@ def update(drone):
     _throttle_prev = throttle
     if tick:
         att = drone.physics.get_attitude()             # (roll, pitch, yaw) deg
-        gyro = drone.physics.get_angular_velocity()    # body rates (roll, pitch, yaw) rad/s
+        gyro = drone.physics.get_angular_velocity()    # library Y-up frame: [1] is the
+                                                       # YAW rate (verified vs heading
+                                                       # sweep in 2026-08-01 logs)
         sat = (("Y" if abs(yaw_pid) > MAX_YAW else "-")
                + ("R" if abs(roll_pid) > MAX_ROLL else "-")
                + ("T" if abs(errAlt * KP_ALT) > MAX_THROTTLE else "-"))
         _log.info(
             f"[LF] t={_timer:6.2f} dt={dt*1000:4.0f}ms alt={neo_lab.height(drone):.2f}"
             f" att=({att[0]:+5.1f},{att[1]:+5.1f},{att[2]:6.1f})deg"
-            f" gyro=({gyro[0]:+.2f},{gyro[1]:+.2f},{gyro[2]:+.2f})"
+            f" gyro(x,yaw,z)=({gyro[0]:+.2f},{gyro[1]:+.2f},{gyro[2]:+.2f})"
             f" px={len(points)} n/f={n_near}/{n_far} bands={fb}"
             f" nearC={nearCol:5.1f} farC={farCol:5.1f}"
             f" yawE={yawErr:+.3f}(raw{yawErr_raw:+.3f} d{_yaw_err_dot_filt:+.3f})"
