@@ -4,7 +4,6 @@ Lock in
 
 import atexit
 import math
-import signal
 import subprocess
 import time
 import drone_core
@@ -22,7 +21,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.19 px4-summary-in-flight-log"
+CODE_VERSION = "2026-08-01.20 second-ctrl-c-cancels-pull"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -115,16 +114,15 @@ def _px4_log_summary():
 
 def _commit_flight_log():
     """atexit: append the PX4 summary while the tee is still attached (so it is
-    part of the pushed log), then detach, commit and push. SIGINT is ignored for
-    the duration so a second Ctrl-C cannot abort the capture -- atexit itself
-    already runs after the first Ctrl-C."""
+    part of the pushed log), then detach, commit and push. A second Ctrl-C
+    during the (potentially slow) PX4 pull cancels just the pull; the log still
+    commits. Ctrl-C during the commit itself aborts it -- the file stays on
+    disk and is swept into the next run's commit."""
     global _LOG_FILE
     try:
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-    except (ValueError, OSError):
-        pass                                # non-main thread / restricted env
-    try:
         _px4_log_summary()
+    except KeyboardInterrupt:
+        print("[PX4] pull cancelled by Ctrl-C -- committing the log without it")
     except Exception as e:
         print(f"[PX4] summary failed: {e}")
     _sys.stdout, _sys.stderr = _ORIG_STDOUT, _ORIG_STDERR
