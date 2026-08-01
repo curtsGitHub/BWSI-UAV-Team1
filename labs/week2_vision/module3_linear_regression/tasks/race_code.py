@@ -21,7 +21,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.16 yaw-derivative-clamp"
+CODE_VERSION = "2026-08-01.17 gate-lateral-centering"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -150,6 +150,10 @@ HOLD_TIME = 1.0
 KP_ALT_GATE = 0.3 #original 0.18
 KI_ALT_GATE = 0.05
 KD_ALT_GATE = 0.02
+GATE_KP_YAW = 0.4        # yaw toward the gate's cx during approach
+GATE_NEAR_PX = 40.0      # tag_px at which the gate fully owns yaw (blend weight 1.0);
+                         # first detections in the 2026-08-01 log were ~23-28 px,
+                         # close approach ~40-53 px
 ALT_INT_CLAMP = 3.0
 THROTTLE_LIMIT = 0.5
 ALT_TOL = 0.15
@@ -590,6 +594,16 @@ def update(drone):
         pitch_rate = 0.02
         target_row = gate.cy
         _target_col = gate.cx
+
+        # lateral centering: yaw toward the gate's cx, blended in by proximity.
+        # 2026-08-01 flight: span grew to 523 px while cx marched to -148 -- the
+        # drone slid past the gate sideways because only the line steered. Roll
+        # stays on the line; yaw hands over to the gate as tag_px approaches
+        # GATE_NEAR_PX. cx can be far outside the image; the clamp bounds it.
+        rot_err = (gate.cx - COL_CENTER) / COL_CENTER
+        gate_w = uav_utils.clamp(gate.tag_px / GATE_NEAR_PX, 0.0, 1.0)
+        yaw_rate = ((1.0 - gate_w) * yaw_rate
+                    + gate_w * uav_utils.clamp(GATE_KP_YAW * rot_err, -MAX_YAW, MAX_YAW))
         """
         rot_err = (_target_col - COL_CENTER) / COL_CENTER
         _rot_err_int = uav_utils.clamp(_rot_err_int + rot_err * dt, -1.0, 1.0)
@@ -651,6 +665,7 @@ def update(drone):
                 f"[GT] t={_timer:6.2f} ids={gate.ids} n={gate.count}"
                 f" cx={gate.cx:5.1f} cy={gate.cy:5.1f} tag_px={gate.tag_px:5.1f}"
                 f" span={gate.span:6.1f} close={_gate_close_rate:+5.1f}px/s age={age:.2f}s"
+                f" rotE={rot_err:+.3f} w={gate_w:.2f}"
                 f" altE={alt_err:+.3f} (P={KP_ALT_GATE*alt_err:+.3f}"
                 f" I={KI_ALT_GATE*_alt_err_int:+.3f} D={KD_ALT_GATE*alt_err_dot:+.3f})"
                 f" thH={_throttle_h:+.3f} thL={_throttle_l:+.3f} hold={_hold:.2f}"
