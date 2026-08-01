@@ -79,8 +79,11 @@ _gate_detector = None
 S_MIN         = 200
 MIN_PIXELS    = 200
 FORWARD_PITCH = 0.20     # slow forward speed so roll can keep up on curves
-MAX_ROLL      = 0.30     # lateral centering: 0.3 * 0.5 m/s = 0.15 m/s, enough to chase
-                         # the 0.1 m/s forward speed (0.10 pinned all flight in the logs)
+MAX_ROLL      = 0.10     # REVERTED from 0.30 after flight 2026-08-01: at 0.3 the roll
+                         # loop oscillates through camera-tilt feedback (gyro +-0.8 rad/s,
+                         # altitude coupling, ended on the floor). 0.1 keeps the limit
+                         # cycle bounded. Don't raise again until yaw authority works or
+                         # the vision errors are tilt-compensated.
 MAX_YAW       = 0.5      # real drone: 0.5 * 0.5 rad/s = 0.25 rad/s -> ~0.4 m turn radius
                          # at FORWARD_PITCH speed (0.1 m/s); widen if curves allow
 IMAGE_CENTER  = 320      # 640-wide image -> center column
@@ -120,6 +123,7 @@ _fb_prev = "--"          # band-fallback state (N=near empty, F=far empty)
 _gate_seen_t = None      # _timer at the last successful gate detection
 _gate_px_prev = None     # (t, tag_px) of the previous detection, for closure rate
 _gate_close_rate = 0.0   # d(tag_px)/dt, px/s -- positive means approaching the gate
+_color_ok_prev = True    # forward-camera availability, for transition events
 
 #Shared State
 _throttle_h = 0.0
@@ -251,7 +255,7 @@ def reset():
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
     global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last
-    global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate
+    global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh, _recorder
     _rot_err_int = 0.0
@@ -282,6 +286,7 @@ def reset():
     _gate_seen_t = None
     _gate_px_prev = None
     _gate_close_rate = 0.0
+    _color_ok_prev = True
 
     _throttle_h = 0.0
     _throttle_l = 0.0
@@ -295,7 +300,7 @@ def update(drone):
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
     global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last
-    global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate
+    global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh
     if _done:
@@ -327,7 +332,12 @@ def update(drone):
     if len(points) < MIN_PIXELS:
         if _lost == 0.0:
             _log.info(f"[EVT] t={_timer:.2f} line lost (px={len(points)} < {MIN_PIXELS})")
-        drone.flight.stop()
+        # hold position laterally but keep closing on TARGET_HEIGHT: a plain stop()
+        # deadlocks a low start (footprint too small to see the line, and it stays
+        # low because it can't see the line -- flights that began at 0.3 m died here)
+        errAlt = TARGET_HEIGHT - neo_lab.height(drone)
+        drone.flight.send_pcmd(0.0, 0.0, 0.0,
+                               uav_utils.clamp(errAlt * KP_ALT, -MAX_THROTTLE, MAX_THROTTLE))
         _lost += dt
 
         if _lost >= LOST_TIME:
@@ -400,7 +410,13 @@ def update(drone):
     if _fresh % 5 == 0:
         # cache the result so the frames between detections keep the last gate
         # instead of falling into the gate-lost branch (throttle chatter, _hold reset)
-        if imgColor is not None:
+        color_ok = imgColor is not None
+        if color_ok != _color_ok_prev:
+            _log.info(f"[EVT] t={_timer:.2f} forward camera "
+                      + ("frames resumed" if color_ok else
+                         "MISSING (get_color_image() is None -> gate detection disabled)"))
+            _color_ok_prev = color_ok
+        if color_ok:
             _gate_last = detect_gate(imgColor)
         else:
             _gate_last = None
