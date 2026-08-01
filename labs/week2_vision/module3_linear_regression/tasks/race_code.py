@@ -43,7 +43,7 @@ S_MIN         = 200
 MIN_PIXELS    = 200
 FORWARD_PITCH = 0.20     # slow forward speed so roll can keep up on curves
 MAX_ROLL      = 0.10     # lateral centering on the near part of the line
-MAX_YAW       = 1.0     # turn to align heading with the line ahead (primary curve steering)
+MAX_YAW       = 0.35     # turn to align heading with the line ahead (primary curve steering)
 IMAGE_CENTER  = 320      # 640-wide image -> center column
 LOOKAHEAD_FRAC = 0.4     # split the line into a far (yaw) part and a near (roll) part
 LOST_TIME     = 3.0      # land after the line has been out of view this long (its end)
@@ -51,9 +51,9 @@ MAX_FOLLOW    = 100.0     # safety cap on total follow time
 MAX_THROTTLE = .05
 KP_ALT = 0.1
 TARGET_HEIGHT = 1.0
-yawKP = 1.5
+yawKP = 0.6              # yawErr is the line angle in radians, so keep kp*err under MAX_YAW
 yawKI = 0.0
-yawKD = 0.06
+yawKD = 0.2              # usable now that the derivative is low-pass filtered
 rollKP = 0.4
 rollKI = 0.0
 rollKD = 0.03
@@ -64,6 +64,8 @@ _lost  = 0.0
 _done  = False
 _prev_yaw_rate = 0.0
 _prev_roll_rate = 0.0
+_yaw_err_dot_filt = 0.0
+_gate_last = None
 
 #Shared State
 _throttle_h = 0.0
@@ -189,6 +191,7 @@ def reset():
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
+    global _yaw_err_dot_filt, _gate_last
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh, _recorder
     _rot_err_int = 0.0
@@ -208,6 +211,8 @@ def reset():
     _yawPrev_err = 0.0
     _rollPrev_err = 0.0
     _prevTags = 0
+    _yaw_err_dot_filt = 0.0
+    _gate_last = None
 
     _throttle_h = 0.0
     _throttle_l = 0.0
@@ -220,6 +225,7 @@ def update(drone):
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
+    global _yaw_err_dot_filt, _gate_last
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh
     if _done:
@@ -246,39 +252,50 @@ def update(drone):
     else:
         _lost = 0.0
         rows = points[:, 0]
-        split_row = rows.min() + (rows.max() - rows.min()) * LOOKAHEAD_FRAC
+        # split at a fixed image row so the far band's physical distance doesn't
+        # collapse when the line ahead exits the side of the frame on sharp curves
+        split_row = mask.shape[0] * LOOKAHEAD_FRAC
         near = points[rows >= split_row]
-        far = points[rows <= split_row]
+        far = points[rows < split_row]
+        if len(far) == 0:
+            far = points
+        if len(near) == 0:
+            near = points
         farCol = far[:,1].mean()
         nearCol = near[:,1].mean()
-        
-        yawErr = (farCol - IMAGE_CENTER) / IMAGE_CENTER
-        yawErr_derv = (yawErr - _yawPrev_err) / dt
+
+        # yaw error = line angle (near centroid -> far centroid), radians; invariant
+        # to lateral offset, so it stays unbiased on curves and leaves offset to roll
+        yawErr = math.atan2(farCol - nearCol, max(near[:, 0].mean() - far[:, 0].mean(), 1.0))
+        yawErr_derv = (yawErr - _yawPrev_err) / dt if dt > 0 else 0.0
+        _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv
         _yawPrev_err = yawErr
-        
+
         rollErr = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
-        rollErr_derv = (rollErr - _rollPrev_err) / dt
+        rollErr_derv = (rollErr - _rollPrev_err) / dt if dt > 0 else 0.0
         _rollPrev_err = rollErr
         errAlt = TARGET_HEIGHT - neo_lab.height(drone)
-        
+
         _throttle_l = uav_utils.clamp(errAlt * KP_ALT, -MAX_THROTTLE, MAX_THROTTLE)
-        yaw_rate_raw = uav_utils.clamp(pid_control(yawErr, uav_utils.clamp(0, -3, 3), yawErr_derv, yawKP, yawKI, yawKD), -MAX_YAW, MAX_YAW)
+        yaw_rate_raw = uav_utils.clamp(pid_control(yawErr, 0.0, _yaw_err_dot_filt, yawKP, yawKI, yawKD), -MAX_YAW, MAX_YAW)
         yaw_rate = 0.0 * _prev_yaw_rate + 1.0 * yaw_rate_raw
         _prev_yaw_rate = yaw_rate
-        
-        
+
+
         # roll_rate_raw = uav_utils.clamp(rollErr * MAX_ROLL, -MAX_ROLL, MAX_ROLL)
-        roll_rate_raw = uav_utils.clamp(pid_control(rollErr, uav_utils.clamp(0, -3, 3), rollErr_derv, rollKP, rollKI, rollKD), -MAX_ROLL, MAX_ROLL)
+        roll_rate_raw = uav_utils.clamp(pid_control(rollErr, 0.0, rollErr_derv, rollKP, rollKI, rollKD), -MAX_ROLL, MAX_ROLL)
         roll_rate = 0.0 * _prev_roll_rate + 1.0 * roll_rate_raw
         _prev_roll_rate = roll_rate
         
         pitch_rate = FORWARD_PITCH * max(0.0, 1.0 - 3.0 * abs(yawErr))
 
-    #HEIGHT 
-    gate = None
+    #HEIGHT
     _fresh += 1
     if _fresh % 5 == 0:
-        gate = detect_gate(imgColor) if imgColor is not None else None
+        # cache the result so the frames between detections keep the last gate
+        # instead of falling into the gate-lost branch (throttle chatter, _hold reset)
+        _gate_last = detect_gate(imgColor) if imgColor is not None else None
+    gate = _gate_last
     print(f"Gate: {gate}")
     #print(f"id {gate.i}")
 
@@ -328,7 +345,7 @@ def update(drone):
     throttle = _throttle_l if gate is None else (_throttle_l + _throttle_h)
     _throttle_prev = throttle
     if int(_timer * 2) != int((_timer - dt) * 2):
-        print(f"throttle:{throttle} errAlt:{errAlt * IMAGE_CENTER} altitude:{neo_lab.height(drone)} pitch:{pitch_rate} ErrRoll:{rollErr} yawErr:{yawErr} yaw_rate:{yaw_rate * 2} rollRate:{roll_rate}")
+        print(f"throttle:{throttle} errAlt:{errAlt * IMAGE_CENTER} altitude:{neo_lab.height(drone)} pitch:{pitch_rate} ErrRoll:{rollErr} yawErr:{yawErr} yaw_rate:{yaw_rate} rollRate:{roll_rate}")
         print(f"Current yawrate:{drone.physics.get_angular_velocity()}")
     drone.flight.send_pcmd(pitch_rate, roll_rate, yaw_rate, throttle)
             
