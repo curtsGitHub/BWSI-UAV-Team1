@@ -21,7 +21,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.21 conservative-line-follow"
+CODE_VERSION = "2026-08-01.22 max-follow-300s"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -229,7 +229,8 @@ LOOKAHEAD_FRAC = 0.4     # split the line into a far (yaw) part and a near (roll
 LOST_TIME     = 20.0      # give the climb-and-reacquire recovery room to work: one
                          # recovery in the 2026-08-01 log took 3.2 s, right at the
                          # old 3.0 s limit
-MAX_FOLLOW    = 180.0    # total-time cap, raised to match the slower cruise speed
+MAX_FOLLOW    = 300.0    # total-time cap; at the v.21 cruise (~0.05 m/s effective)
+                         # 180 s was no longer enough to finish the course
 MAX_THROTTLE = 0.3       # real drone: 0.3 * 0.5 m/s = 0.15 m/s vertical authority.
                          # The old 0.05 sat inside the sim's deadband, where the sim
                          # itself held altitude -- on real PX4 nothing does that for us.
