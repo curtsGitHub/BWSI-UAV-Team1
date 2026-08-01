@@ -18,7 +18,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.9 gate-status-heartbeat"
+CODE_VERSION = "2026-08-01.10 line-follow-restored-to-fbb20c80"
 
 
 class _ConsoleLog:
@@ -64,18 +64,14 @@ _gate_detector = None
 #LINE Constants
 S_MIN         = 200
 MIN_PIXELS    = 200
-FORWARD_PITCH = 0.10     # 0.05 m/s cruise -- reliability over speed: every line loss
-                         # in the 2026-08-01 logs came from overrunning a curve at
-                         # near-full speed with roll pinned
+FORWARD_PITCH = 0.20     # restored to fbb20c80: slow forward speed so roll can keep up
 MAX_ROLL      = 0.10     # REVERTED from 0.30 after flight 2026-08-01: at 0.3 the roll
                          # loop oscillates through camera-tilt feedback (gyro +-0.8 rad/s,
                          # altitude coupling, ended on the floor). 0.1 keeps the limit
                          # cycle bounded. Don't raise again until yaw authority works or
                          # the vision errors are tilt-compensated.
-MAX_YAW       = 0.15     # measured 2026-08-01: full stick is ~1.8-2 rad/s on the real
-                         # drone (~4x the nominal 0.5 in flight_real.py -- mux scaling),
-                         # so 0.15 ~= 0.3 rad/s. At 0.5 the yaw loop bang-banged and
-                         # swept the camera through the line (all three flight logs).
+MAX_YAW       = 0.35     # restored to fbb20c80 (primary curve steering). NOTE: measured
+                         # full stick is ~1.8-2 rad/s, so this is ~0.7 rad/s true.
 IMAGE_CENTER  = 320      # 640-wide image -> center column
 LOOKAHEAD_FRAC = 0.4     # split the line into a far (yaw) part and a near (roll) part
 LOST_TIME     = 5.0      # give the climb-and-reacquire recovery room to work: one
@@ -105,8 +101,6 @@ _done  = False
 _prev_yaw_rate = 0.0
 _prev_roll_rate = 0.0
 _yaw_err_dot_filt = 0.0
-_yaw_err_filt = 0.0
-_roll_err_filt = 0.0
 _gate_last = None
 _airborne = False
 
@@ -146,18 +140,6 @@ TAG_MAP = {
 }
 
 SIDE_SLOTS = ("l", "r")
-
-def _largest_blob(mask):
-    """Keep only the largest connected component of the line mask. At ~1 m the FOV
-    can hold two segments of the winding course at once; centroids over both made
-    nearC teleport across the image and flipped the yaw error (2026-08-01 logs)."""
-    n, labels = cv2.connectedComponents(mask.astype(np.uint8))
-    if n <= 2:                       # background + at most one blob
-        return mask
-    counts = np.bincount(labels.ravel())
-    counts[0] = 0                    # never pick the background
-    return labels == counts.argmax()
-
 
 def pid_control(err, err_int, err_dot, kp, ki, kd):
     p = kp * err
@@ -271,7 +253,7 @@ def reset():
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last, _airborne
+    global _yaw_err_dot_filt, _gate_last, _airborne
     global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh, _recorder
@@ -293,8 +275,6 @@ def reset():
     _rollPrev_err = 0.0
     _prevTags = 0
     _yaw_err_dot_filt = 0.0
-    _yaw_err_filt = 0.0
-    _roll_err_filt = 0.0
     _gate_last = None
     _airborne = False
 
@@ -317,7 +297,7 @@ def update(drone):
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last, _airborne
+    global _yaw_err_dot_filt, _gate_last, _airborne
     global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh
@@ -359,7 +339,7 @@ def update(drone):
             _log.info(f"[EVT] t={_timer:.2f} no video for {LOST_TIME}s -> landing")
         return _done
 
-    mask = _largest_blob(neo_lab.bright_mask(img, S_MIN) > 0)
+    mask = neo_lab.bright_mask(img, S_MIN) > 0
     points = np.argwhere(mask)
 
     if len(points) < MIN_PIXELS:
@@ -402,18 +382,11 @@ def update(drone):
         near_row = near[:, 0].mean()
         far_row = far[:, 0].mean()
 
-        # yaw error = line angle (near centroid -> far centroid), radians; invariant
-        # to lateral offset, so it stays unbiased on curves and leaves offset to roll
-        yawErr_raw = math.atan2(farCol - nearCol, max(near_row - far_row, 1.0))
-        rollErr_raw = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
-
-        # low-pass both vision errors: the downward camera is not gimballed, so body
-        # tilt shifts the whole line in the image -- flight logs show single tilted
-        # frames flipping the raw error sign (yawErr +0.47 -> -0.24 in one tick)
-        _yaw_err_filt = 0.7 * _yaw_err_filt + 0.3 * yawErr_raw
-        _roll_err_filt = 0.7 * _roll_err_filt + 0.3 * rollErr_raw
-        yawErr = _yaw_err_filt
-        rollErr = _roll_err_filt
+        # fbb20c80 line follow: raw errors into the PIDs, only the yaw derivative
+        # is dampened. yaw error = line angle (near -> far centroid), radians;
+        # invariant to lateral offset, so offset stays roll's job
+        yawErr = math.atan2(farCol - nearCol, max(near_row - far_row, 1.0))
+        rollErr = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
 
         yawErr_derv = (yawErr - _yawPrev_err) / dt if dt > 0 else 0.0
         _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv
@@ -433,12 +406,8 @@ def update(drone):
         roll_rate = uav_utils.clamp(roll_pid, -MAX_ROLL, MAX_ROLL)
         _prev_roll_rate = roll_rate
         
-        # slow with misalignment AND lateral offset, and brake to a stop (zero
-        # velocity setpoint -> PX4 decelerates actively) when badly off: with yaw
-        # working, stop-turn-resume beats plowing through curves. The ramp is
-        # continuous on EMA-filtered errors, so no step kicks to the airframe.
-        speed_scale = 1.0 - 1.5 * abs(yawErr) - 1.0 * abs(rollErr)
-        pitch_rate = FORWARD_PITCH * uav_utils.clamp(speed_scale, 0.0, 1.0)
+        # fbb20c80 pitch gate: full speed when aligned, full stop past ~19 deg
+        pitch_rate = FORWARD_PITCH * max(0.0, 1.0 - 3.0 * abs(yawErr))
 
     #HEIGHT
     _fresh += 1
@@ -533,8 +502,8 @@ def update(drone):
             f" gyro(x,yaw,z)=({gyro[0]:+.2f},{gyro[1]:+.2f},{gyro[2]:+.2f})"
             f" px={len(points)} n/f={n_near}/{n_far} bands={fb}"
             f" nearC={nearCol:5.1f} farC={farCol:5.1f}"
-            f" yawE={yawErr:+.3f}(raw{yawErr_raw:+.3f} d{_yaw_err_dot_filt:+.3f})"
-            f" rollE={rollErr:+.3f}(raw{rollErr_raw:+.3f})"
+            f" yawE={yawErr:+.3f}(d{_yaw_err_dot_filt:+.3f})"
+            f" rollE={rollErr:+.3f}"
             f" | cmd P={pitch_rate:.3f} R={roll_rate:+.3f} Y={yaw_rate:+.3f} T={throttle:+.3f}"
             f" sat={sat}"
         )
