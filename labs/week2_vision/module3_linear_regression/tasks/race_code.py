@@ -20,7 +20,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.6 airborne-latch"
+CODE_VERSION = "2026-08-01.7 reliability-margins"
 
 
 def _make_logger():
@@ -98,8 +98,10 @@ MAX_YAW       = 0.15     # measured 2026-08-01: full stick is ~1.8-2 rad/s on th
                          # swept the camera through the line (all three flight logs).
 IMAGE_CENTER  = 320      # 640-wide image -> center column
 LOOKAHEAD_FRAC = 0.4     # split the line into a far (yaw) part and a near (roll) part
-LOST_TIME     = 3.0      # land after the line has been out of view this long (its end)
-MAX_FOLLOW    = 100.0     # safety cap on total follow time
+LOST_TIME     = 5.0      # give the climb-and-reacquire recovery room to work: one
+                         # recovery in the 2026-08-01 log took 3.2 s, right at the
+                         # old 3.0 s limit
+MAX_FOLLOW    = 180.0    # total-time cap, raised to match the slower cruise speed
 MAX_THROTTLE = 0.3       # real drone: 0.3 * 0.5 m/s = 0.15 m/s vertical authority.
                          # The old 0.05 sat inside the sim's deadband, where the sim
                          # itself held altitude -- on real PX4 nothing does that for us.
