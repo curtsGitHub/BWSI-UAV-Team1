@@ -157,6 +157,8 @@ TAG_MAP = {
     46: (1, "r"),
 }
 
+SIDE_SLOTS = ("l", "r")
+
 def pid_control(err, err_int, err_dot, kp, ki, kd):
     p = kp * err
     i = ki * err_int
@@ -199,6 +201,14 @@ def _tag_side(quad):
     p = quad.reshape(-1, 2)
     edges = [np.linalg.norm(p[i] - p[(i + 1) % 4]) for i in range(4)]
     return float(np.mean(edges))
+
+    
+
+def _prefer_sides(group):
+    """Gates differ in height, so t/b/corner tags guess cy through HALF_H.
+    Side tags don't (their vertical offset is 0), so trust them alone if present."""
+    sides = [t for t in group if t[1] in SIDE_SLOTS]
+    return sides if sides else group
 
 
 def _read_tags(gray):
@@ -246,6 +256,7 @@ def detect_gate(image):
     group = _nearest_gate(tags)
     if not group:
         return None
+    group = _prefer_sides(group)
 
     guesses = [_center_from_tag(slot, center, side)
                for _tid, slot, center, side in group]
