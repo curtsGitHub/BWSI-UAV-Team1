@@ -43,7 +43,8 @@ _gate_detector = None
 S_MIN         = 200
 MIN_PIXELS    = 200
 FORWARD_PITCH = 0.20     # slow forward speed so roll can keep up on curves
-MAX_ROLL      = 0.10     # lateral centering on the near part of the line
+MAX_ROLL      = 0.30     # lateral centering: 0.3 * 0.5 m/s = 0.15 m/s, enough to chase
+                         # the 0.1 m/s forward speed (0.10 pinned all flight in the logs)
 MAX_YAW       = 0.5      # real drone: 0.5 * 0.5 rad/s = 0.25 rad/s -> ~0.4 m turn radius
                          # at FORWARD_PITCH speed (0.1 m/s); widen if curves allow
 IMAGE_CENTER  = 320      # 640-wide image -> center column
@@ -69,6 +70,8 @@ _done  = False
 _prev_yaw_rate = 0.0
 _prev_roll_rate = 0.0
 _yaw_err_dot_filt = 0.0
+_yaw_err_filt = 0.0
+_roll_err_filt = 0.0
 _gate_last = None
 
 #Shared State
@@ -197,7 +200,7 @@ def reset():
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _gate_last
+    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh, _recorder
     _rot_err_int = 0.0
@@ -218,6 +221,8 @@ def reset():
     _rollPrev_err = 0.0
     _prevTags = 0
     _yaw_err_dot_filt = 0.0
+    _yaw_err_filt = 0.0
+    _roll_err_filt = 0.0
     _gate_last = None
 
     _throttle_h = 0.0
@@ -231,7 +236,7 @@ def update(drone):
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _gate_last
+    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh
     if _done:
@@ -283,12 +288,21 @@ def update(drone):
 
         # yaw error = line angle (near centroid -> far centroid), radians; invariant
         # to lateral offset, so it stays unbiased on curves and leaves offset to roll
-        yawErr = math.atan2(farCol - nearCol, max(near[:, 0].mean() - far[:, 0].mean(), 1.0))
+        yawErr_raw = math.atan2(farCol - nearCol, max(near[:, 0].mean() - far[:, 0].mean(), 1.0))
+        rollErr_raw = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
+
+        # low-pass both vision errors: the downward camera is not gimballed, so body
+        # tilt shifts the whole line in the image -- flight logs show single tilted
+        # frames flipping the raw error sign (yawErr +0.47 -> -0.24 in one tick)
+        _yaw_err_filt = 0.7 * _yaw_err_filt + 0.3 * yawErr_raw
+        _roll_err_filt = 0.7 * _roll_err_filt + 0.3 * rollErr_raw
+        yawErr = _yaw_err_filt
+        rollErr = _roll_err_filt
+
         yawErr_derv = (yawErr - _yawPrev_err) / dt if dt > 0 else 0.0
         _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv
         _yawPrev_err = yawErr
 
-        rollErr = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
         rollErr_derv = (rollErr - _rollPrev_err) / dt if dt > 0 else 0.0
         _rollPrev_err = rollErr
         errAlt = TARGET_HEIGHT - neo_lab.height(drone)
@@ -304,7 +318,10 @@ def update(drone):
         roll_rate = 0.0 * _prev_roll_rate + 1.0 * roll_rate_raw
         _prev_roll_rate = roll_rate
         
-        pitch_rate = FORWARD_PITCH * max(0.0, 1.0 - 3.0 * abs(yawErr))
+        # gentle slope with a floor: the old on/off gate stepped pitch 0 <-> full,
+        # kicking the airframe (-2.4 rad/s pitch spikes in the logs) and corrupting
+        # the camera view with tilt; never stop fully, just slow down for curves
+        pitch_rate = FORWARD_PITCH * max(0.3, 1.0 - 1.5 * abs(yawErr))
 
     #HEIGHT
     _fresh += 1
