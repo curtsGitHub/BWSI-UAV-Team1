@@ -20,7 +20,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.3 yaw-detune"
+CODE_VERSION = "2026-08-01.4 slow-and-brake-for-curves"
 
 
 def _make_logger():
@@ -84,7 +84,9 @@ _gate_detector = None
 #LINE Constants
 S_MIN         = 200
 MIN_PIXELS    = 200
-FORWARD_PITCH = 0.20     # slow forward speed so roll can keep up on curves
+FORWARD_PITCH = 0.10     # 0.05 m/s cruise -- reliability over speed: every line loss
+                         # in the 2026-08-01 logs came from overrunning a curve at
+                         # near-full speed with roll pinned
 MAX_ROLL      = 0.10     # REVERTED from 0.30 after flight 2026-08-01: at 0.3 the roll
                          # loop oscillates through camera-tilt feedback (gyro +-0.8 rad/s,
                          # altitude coupling, ended on the floor). 0.1 keeps the limit
@@ -419,10 +421,12 @@ def update(drone):
         roll_rate = uav_utils.clamp(roll_pid, -MAX_ROLL, MAX_ROLL)
         _prev_roll_rate = roll_rate
         
-        # gentle slope with a floor: the old on/off gate stepped pitch 0 <-> full,
-        # kicking the airframe (-2.4 rad/s pitch spikes in the logs) and corrupting
-        # the camera view with tilt; never stop fully, just slow down for curves
-        pitch_rate = FORWARD_PITCH * max(0.3, 1.0 - 1.5 * abs(yawErr))
+        # slow with misalignment AND lateral offset, and brake to a stop (zero
+        # velocity setpoint -> PX4 decelerates actively) when badly off: with yaw
+        # working, stop-turn-resume beats plowing through curves. The ramp is
+        # continuous on EMA-filtered errors, so no step kicks to the airframe.
+        speed_scale = 1.0 - 1.5 * abs(yawErr) - 1.0 * abs(rollErr)
+        pitch_rate = FORWARD_PITCH * uav_utils.clamp(speed_scale, 0.0, 1.0)
 
     #HEIGHT
     _fresh += 1
