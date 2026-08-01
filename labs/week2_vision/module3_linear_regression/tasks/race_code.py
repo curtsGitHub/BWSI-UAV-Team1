@@ -2,7 +2,10 @@
 Lock in
 """
 
+import atexit
 import math
+import subprocess
+import time
 import drone_core
 import drone_utils as uav_utils
 import cv2
@@ -18,15 +21,115 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.13 lost-lateral-search"
+CODE_VERSION = "2026-08-01.14 auto-commit-flight-log"
+
+# ── Flight log capture ────────────────────────────────────────────────────────────
+# Everything written to the console (our prints, neo_lab's, tracebacks) is teed
+# into <repo>/flight_logs/<timestamp>_flight.log, flushed line-by-line so a crash
+# still leaves a complete file. At program exit an atexit hook commits and pushes
+# the flight_logs dir with git in a subprocess (also sweeping up leftover logs
+# from crashed runs). RACE_LOG_GIT=0 disables the git step -- set that on dev
+# machines so sim runs don't auto-commit; the Pi should leave it unset.
+
+_ORIG_STDOUT, _ORIG_STDERR = _sys.stdout, _sys.stderr
+_LOG_REPO = None
+_LOG_FILE = None
+_LOG_NAME = None
+try:
+    _r = subprocess.run(["git", "-C", _d, "rev-parse", "--show-toplevel"],
+                        capture_output=True, text=True, timeout=10)
+    if _r.returncode == 0:
+        _LOG_REPO = _r.stdout.strip()
+        _log_dir = _os.path.join(_LOG_REPO, "flight_logs")
+        _os.makedirs(_log_dir, exist_ok=True)
+        # timestamp + pid + counter, created exclusively ("x"): unique even with
+        # the Pi's clock resetting between boots or two runs in the same second
+        _stamp = time.strftime("%Y%m%d_%H%M%S")
+        for _n in range(100):
+            _cand = f"{_stamp}_p{_os.getpid()}{'' if _n == 0 else f'_{_n}'}_flight.log"
+            try:
+                _LOG_FILE = open(_os.path.join(_log_dir, _cand), "x")
+                _LOG_NAME = _cand
+                break
+            except FileExistsError:
+                continue
+except Exception:
+    _LOG_REPO = _LOG_FILE = None
+
+
+class _Tee:
+    """Mirror a console stream into the flight log file."""
+    def __init__(self, stream, sink):
+        self._stream = stream
+        self._sink = sink
+
+    def write(self, data):
+        n = self._stream.write(data)
+        try:
+            self._sink.write(data)
+            self._sink.flush()             # every line on disk, crash-proof
+        except (OSError, ValueError):
+            pass
+        return n
+
+    def flush(self):
+        self._stream.flush()
+
+    def __getattr__(self, name):           # fileno/isatty/encoding for libraries
+        return getattr(self._stream, name)
+
+
+if _LOG_FILE is not None:
+    _sys.stdout = _Tee(_ORIG_STDOUT, _LOG_FILE)
+    _sys.stderr = _Tee(_ORIG_STDERR, _LOG_FILE)
+
+
+def _commit_flight_log():
+    """atexit: detach the tee, then commit+push the log via git subprocess.
+    Never raises; a failed push leaves the commit local for a later `git push`."""
+    global _LOG_FILE
+    _sys.stdout, _sys.stderr = _ORIG_STDOUT, _ORIG_STDERR
+    if _LOG_FILE is not None:
+        try:
+            _LOG_FILE.close()
+        except OSError:
+            pass
+        _LOG_FILE = None
+    if _LOG_REPO is None or _os.environ.get("RACE_LOG_GIT", "1") == "0":
+        return
+
+    def _git(*args, timeout):
+        return subprocess.run(["git", "-C", _LOG_REPO, *args],
+                              capture_output=True, text=True, timeout=timeout)
+
+    try:
+        _git("add", "flight_logs", timeout=30)
+        # pathspec on the commit too, so nothing else that happens to be staged
+        # in the repo ever rides along with a flight log
+        c = _git("commit", "-m", f"flight log {_LOG_NAME} ({CODE_VERSION})",
+                 "--", "flight_logs", timeout=30)
+        if c.returncode != 0:
+            print(f"[LOG] flight log commit failed: {(c.stdout + c.stderr).strip()[:200]}")
+            return
+        print(f"[LOG] flight log committed ({_LOG_NAME})")
+        p = _git("push", timeout=60)
+        if p.returncode == 0:
+            print("[LOG] flight log pushed")
+        else:
+            print(f"[LOG] PUSH FAILED -- commit is local, `git push` later: "
+                  f"{(p.stdout + p.stderr).strip()[:200]}")
+    except Exception as e:                 # git missing, timeout, ...
+        print(f"[LOG] flight log git step skipped: {e}")
+
+
+atexit.register(_commit_flight_log)
 
 
 class _ConsoleLog:
-    """Console-only log. Capture a flight by redirecting the console, e.g.
-    `python main.py 2>&1 | tee flight.log`."""
+    """Console log; via the stdout tee every line also lands in the flight log."""
     @staticmethod
     def info(msg):
-        print(msg, flush=True)   # flush so lines don't lag behind the flight over SSH
+        print(msg, flush=True)
 
 
 _log = _ConsoleLog()
