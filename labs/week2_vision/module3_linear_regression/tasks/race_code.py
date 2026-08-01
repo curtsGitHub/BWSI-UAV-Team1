@@ -60,8 +60,13 @@ THROTTLE_LIMIT = 0.5
 ALT_TOL = 0.15
 ROW_CENTER = 240
 
+# !!!!!!!!!!!!!! SIM SETTINGS
 HALF_W = 3.7      # gate center -> left/right tag
 HALF_H = 3.2      # gate center -> top/bottom tag
+
+# !!!!!!!!!!!!!! SIM SETTINGS
+HALF_W = 77./2./7.75     # gate center -> left/right tag
+HALF_H = 67./2./7.75     # gate center -> top/bottom tag
 
 #GATE State Vars
 _alt_err_int = 0.0
