@@ -18,7 +18,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.10 line-follow-restored-to-fbb20c80"
+CODE_VERSION = "2026-08-01.11 ver-before-each-step-and-at-end"
 
 
 class _ConsoleLog:
@@ -30,7 +30,13 @@ class _ConsoleLog:
 
 
 _log = _ConsoleLog()
-_log.info(f"[VER] race_code {CODE_VERSION}")
+
+
+def _log_ver():
+    _log.info(f"[VER] race_code {CODE_VERSION}")
+
+
+_log_ver()   # at import, before any step runs
 
 #GATE Constants
 V_MIN = 200
@@ -257,6 +263,7 @@ def reset():
     global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh, _recorder
+    _log_ver()   # before each step, so every run in a log is attributable
     _rot_err_int = 0.0
     _rot_prev_err = 0.0
     _filtered_rot_err_dot = 0.0
@@ -337,6 +344,7 @@ def update(drone):
         if _lost >= LOST_TIME:
             _done = True
             _log.info(f"[EVT] t={_timer:.2f} no video for {LOST_TIME}s -> landing")
+            _log_ver()   # at the end
         return _done
 
     mask = neo_lab.bright_mask(img, S_MIN) > 0
@@ -356,6 +364,7 @@ def update(drone):
         if _lost >= LOST_TIME:
             _done = True
             _log.info(f"[EVT] t={_timer:.2f} line gone for {LOST_TIME}s -> done")
+            _log_ver()   # at the end
         return False
     else:
         if _lost > 0.0:
@@ -527,6 +536,7 @@ def update(drone):
     if _timer >= MAX_FOLLOW:
         _done = True
         _log.info(f"[EVT] t={_timer:.2f} MAX_FOLLOW ({MAX_FOLLOW}s) reached -> done")
+        _log_ver()   # at the end
 
     """
     if _hold >= HOLD_TIME:
