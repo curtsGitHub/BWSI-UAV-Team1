@@ -18,7 +18,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.12 hold-yaw-on-band-empty"
+CODE_VERSION = "2026-08-01.13 lost-lateral-search"
 
 
 class _ConsoleLog:
@@ -90,6 +90,7 @@ MAX_THROTTLE = 0.3       # real drone: 0.3 * 0.5 m/s = 0.15 m/s vertical authori
 KP_ALT = 0.3             # retune at the field; sim value 0.1 was masked by the deadband
 TARGET_HEIGHT = 1.0
 MIN_FLY_ALT = 0.25       # below this at startup: climb only (one-way latch, see update)
+SEARCH_YAW = 0.1         # gentle yaw toward the side the line last exited, while lost
 yawKP = 0.6              # yawErr is the line angle in radians, so keep kp*err under MAX_YAW
 yawKI = 0.0
 yawKD = 0.2              # usable now that the derivative is low-pass filtered
@@ -109,6 +110,7 @@ _prev_roll_rate = 0.0
 _yaw_err_dot_filt = 0.0
 _gate_last = None
 _airborne = False
+_last_roll_dir = 0.0     # sign of the last seen rollErr; 0.0 until the line is first seen
 
 #DEBUG State Vars
 _dbg_all_tags = []       # every decoded tag (id, side_px) from the last detection attempt
@@ -259,7 +261,7 @@ def reset():
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _gate_last, _airborne
+    global _yaw_err_dot_filt, _gate_last, _airborne, _last_roll_dir
     global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh, _recorder
@@ -284,6 +286,7 @@ def reset():
     _yaw_err_dot_filt = 0.0
     _gate_last = None
     _airborne = False
+    _last_roll_dir = 0.0
 
     _dbg_all_tags = []
     _tags_seen_prev = []
@@ -304,7 +307,7 @@ def update(drone):
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _gate_last, _airborne
+    global _yaw_err_dot_filt, _gate_last, _airborne, _last_roll_dir
     global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh
@@ -351,13 +354,19 @@ def update(drone):
     points = np.argwhere(mask)
 
     if len(points) < MIN_PIXELS:
-        if _lost == 0.0:
-            _log.info(f"[EVT] t={_timer:.2f} line lost (px={len(points)} < {MIN_PIXELS})")
-        # hold position laterally but keep closing on TARGET_HEIGHT: a plain stop()
-        # deadlocks a low start (footprint too small to see the line, and it stays
-        # low because it can't see the line -- flights that began at 0.3 m died here)
+        # keep closing on TARGET_HEIGHT while lost: a plain stop() deadlocks a low
+        # start (footprint too small to see the line, and it stays low because it
+        # can't see the line -- flights that began at 0.3 m died here)
         errAlt = TARGET_HEIGHT - neo_lab.height(drone)
-        drone.flight.send_pcmd(0.0, 0.0, 0.0,
+        # every real loss in the logs was lateral (line exits the side): once at
+        # height, yaw gently toward the side it last exited. Gated on altitude so
+        # the low-start climb stays a pure climb (_last_roll_dir is 0.0 until the
+        # line has been seen, so a never-seen line also means no blind rotation).
+        search_yaw = SEARCH_YAW * _last_roll_dir if abs(errAlt) < 0.2 else 0.0
+        if _lost == 0.0:
+            _log.info(f"[EVT] t={_timer:.2f} line lost (px={len(points)} < {MIN_PIXELS})"
+                      f" search_yaw={search_yaw:+.2f}")
+        drone.flight.send_pcmd(0.0, 0.0, search_yaw,
                                uav_utils.clamp(errAlt * KP_ALT, -MAX_THROTTLE, MAX_THROTTLE))
         _lost += dt
 
@@ -406,6 +415,8 @@ def update(drone):
             _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv
         _yawPrev_err = yawErr
         rollErr = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
+        if rollErr != 0.0:
+            _last_roll_dir = 1.0 if rollErr > 0 else -1.0
 
         rollErr_derv = (rollErr - _rollPrev_err) / dt if dt > 0 else 0.0
         _rollPrev_err = rollErr
