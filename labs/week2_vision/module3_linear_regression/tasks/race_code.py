@@ -37,19 +37,23 @@ _alt_err_int = 0.0
 _alt_prev_err = 0.0
 _alt_max_err = 0.0
 _gate_dict = None
+_gate_detector = None
 
 #LINE Constants
 S_MIN         = 200
 MIN_PIXELS    = 200
 FORWARD_PITCH = 0.20     # slow forward speed so roll can keep up on curves
 MAX_ROLL      = 0.10     # lateral centering on the near part of the line
-MAX_YAW       = 0.35     # turn to align heading with the line ahead (primary curve steering)
+MAX_YAW       = 0.5      # real drone: 0.5 * 0.5 rad/s = 0.25 rad/s -> ~0.4 m turn radius
+                         # at FORWARD_PITCH speed (0.1 m/s); widen if curves allow
 IMAGE_CENTER  = 320      # 640-wide image -> center column
 LOOKAHEAD_FRAC = 0.4     # split the line into a far (yaw) part and a near (roll) part
 LOST_TIME     = 3.0      # land after the line has been out of view this long (its end)
 MAX_FOLLOW    = 100.0     # safety cap on total follow time
-MAX_THROTTLE = .05
-KP_ALT = 0.1
+MAX_THROTTLE = 0.3       # real drone: 0.3 * 0.5 m/s = 0.15 m/s vertical authority.
+                         # The old 0.05 sat inside the sim's deadband, where the sim
+                         # itself held altitude -- on real PX4 nothing does that for us.
+KP_ALT = 0.3             # retune at the field; sim value 0.1 was masked by the deadband
 TARGET_HEIGHT = 1.0
 yawKP = 0.6              # yawErr is the line angle in radians, so keep kp*err under MAX_YAW
 yawKI = 0.0
@@ -120,9 +124,11 @@ def _gate_aruco_dict():
     return _gate_dict
 
 def _detect_gate_markers(gray):
+    global _gate_detector
     try:
-        detector = cv2.aruco.ArucoDetector(_gate_aruco_dict(), cv2.aruco.DetectorParameters())
-        return detector.detectMarkers(gray)
+        if _gate_detector is None:
+            _gate_detector = cv2.aruco.ArucoDetector(_gate_aruco_dict(), cv2.aruco.DetectorParameters())
+        return _gate_detector.detectMarkers(gray)
     except AttributeError:                   # OpenCV < 4.7 free-function API
         # params must come from _create() here: the direct constructor segfaults detectMarkers
         params = cv2.aruco.DetectorParameters_create()
@@ -234,10 +240,21 @@ def update(drone):
     #General
     dt = drone.get_delta_time()
     _timer += dt
+    tick = int(_timer * 2) != int((_timer - dt) * 2)   # rate-limit debug prints to 2 Hz
     img = drone.camera.get_downward_image()
     imgColor = drone.camera.get_color_image()
 
     #LINE FOLLOW
+    if img is None:
+        # the real camera returns None until the first frame arrives and on stream
+        # dropouts -- hold position, and land via the lost timer if video never returns
+        drone.flight.stop()
+        _lost += dt
+        if _lost >= LOST_TIME:
+            _done = True
+            print("No video :(")
+        return _done
+
     mask = neo_lab.bright_mask(img, S_MIN) > 0
     points = np.argwhere(mask)
 
@@ -296,7 +313,8 @@ def update(drone):
         # instead of falling into the gate-lost branch (throttle chatter, _hold reset)
         _gate_last = detect_gate(imgColor) if imgColor is not None else None
     gate = _gate_last
-    print(f"Gate: {gate}")
+    if tick:
+        print(f"Gate: {gate}")
     #print(f"id {gate.i}")
 
     if gate is None:
@@ -311,7 +329,8 @@ def update(drone):
         pitch_rate = 0.02
         target_row = gate.cy
         _target_col = gate.cx
-        print(f"Coords: {_target_col}, {target_row}")
+        if tick:
+            print(f"Coords: {_target_col}, {target_row}")
         """
         rot_err = (_target_col - COL_CENTER) / COL_CENTER
         _rot_err_int = uav_utils.clamp(_rot_err_int + rot_err * dt, -1.0, 1.0)
@@ -330,11 +349,13 @@ def update(drone):
         feedback = pid_control(alt_err, _alt_err_int, alt_err_dot, KP_ALT_GATE, KI_ALT_GATE, KD_ALT_GATE)
         #feedforward = KFF * r_dot
         _throttle_h = uav_utils.clamp(feedback, -THROTTLE_LIMIT, THROTTLE_LIMIT)
-        print(f"Error: {alt_err}")
+        if tick:
+            print(f"Error: {alt_err}")
 
         if (abs(alt_err) < ALT_TOL):
             _hold += dt
-            print(f"holding {_hold:.2f}")
+            if tick:
+                print(f"holding {_hold:.2f}")
             # drone.flight.send_pcmd(0, 0, 0, 0)
         else:
             _hold = 0.0
@@ -344,8 +365,8 @@ def update(drone):
     #throttle = (_throttle_prev * 0.7) + ((_throttle_h + _throttle_l) * 0.3)
     throttle = _throttle_l if gate is None else (_throttle_l + _throttle_h)
     _throttle_prev = throttle
-    if int(_timer * 2) != int((_timer - dt) * 2):
-        print(f"throttle:{throttle} errAlt:{errAlt * IMAGE_CENTER} altitude:{neo_lab.height(drone)} pitch:{pitch_rate} ErrRoll:{rollErr} yawErr:{yawErr} yaw_rate:{yaw_rate} rollRate:{roll_rate}")
+    if tick:
+        print(f"throttle:{throttle} errAlt:{errAlt} altitude:{neo_lab.height(drone)} pitch:{pitch_rate} ErrRoll:{rollErr} yawErr:{yawErr} yaw_rate:{yaw_rate} rollRate:{roll_rate}")
         print(f"Current yawrate:{drone.physics.get_angular_velocity()}")
     drone.flight.send_pcmd(pitch_rate, roll_rate, yaw_rate, throttle)
             
