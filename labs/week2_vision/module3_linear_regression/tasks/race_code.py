@@ -21,7 +21,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.15 map-tag-47"
+CODE_VERSION = "2026-08-01.16 yaw-derivative-clamp"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -520,7 +520,11 @@ def update(drone):
         else:
             yawErr = math.atan2(farCol - nearCol, max(near_row - far_row, 1.0))
             yawErr_derv = (yawErr - _yawPrev_err) / dt if dt > 0 else 0.0
-            _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv
+            # clamp: line-geometry flips spike the raw derivative (d=+8.15 in the
+            # 2026-08-01 log -> +-1.6 through yawKD, instant saturation); +-1.0
+            # caps the D contribution at +-0.2 without touching normal tracking
+            _yaw_err_dot_filt = uav_utils.clamp(
+                0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv, -1.0, 1.0)
         _yawPrev_err = yawErr
         rollErr = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
         if rollErr != 0.0:
