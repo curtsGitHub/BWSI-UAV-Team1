@@ -21,7 +21,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.20 second-ctrl-c-cancels-pull"
+CODE_VERSION = "2026-08-01.21 conservative-line-follow"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -214,7 +214,9 @@ _gate_detector = None
 #LINE Constants
 S_MIN         = 200
 MIN_PIXELS    = 200
-FORWARD_PITCH = 0.20     # restored to fbb20c80: slow forward speed so roll can keep up
+FORWARD_PITCH = 0.14     # 0.07 m/s cruise -- conservative for sharp turns. NOTE: yaw
+                         # authority (MAX_YAW 0.35) is deliberately NOT reduced; the
+                         # v.9 failure showed starving yaw is what loses sharp curves.
 MAX_ROLL      = 0.10     # REVERTED from 0.30 after flight 2026-08-01: at 0.3 the roll
                          # loop oscillates through camera-tilt feedback (gyro +-0.8 rad/s,
                          # altitude coupling, ended on the floor). 0.1 keeps the limit
@@ -590,8 +592,11 @@ def update(drone):
         roll_rate = uav_utils.clamp(roll_pid, -MAX_ROLL, MAX_ROLL)
         _prev_roll_rate = roll_rate
         
-        # fbb20c80 pitch gate: full speed when aligned, full stop past ~19 deg
-        pitch_rate = FORWARD_PITCH * max(0.0, 1.0 - 3.0 * abs(yawErr))
+        # slow-and-deliberate gate: cut speed for heading error AND lateral offset,
+        # down to a full stop (~19 deg misalignment, or ~2/3 image offset, or a
+        # mix) -- stop, turn/recentre with full yaw authority, then resume
+        pitch_rate = FORWARD_PITCH * max(0.0, 1.0 - 3.0 * abs(yawErr)
+                                              - 1.5 * abs(rollErr))
 
     #HEIGHT
     _fresh += 1
