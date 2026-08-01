@@ -21,7 +21,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.14 auto-commit-flight-log"
+CODE_VERSION = "2026-08-01.15 map-tag-47"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -245,9 +245,12 @@ SLOT_OFFSET = {
 # Course map: tag id -> (gate number, slot). Fill this in and let it rip.
 TAG_MAP = {
     48: (1, "t"),
-    1: (1, "b"),
-    2: (1, "l"),
     46: (1, "r"),
+    47: (1, "l"),   # INFERRED from 2026-08-01 flight (unmapped id 47 seen repeatedly,
+                    # often together with 46; ids 46/47/48 cluster on one gate).
+                    # VERIFY at the field -- if 47 is actually the bottom tag, fix this.
+    # 1: (1, "b"),  # sim-era ids, not seen on the real course; re-enable for sim runs
+    # 2: (1, "l"),
 }
 
 SIDE_SLOTS = ("l", "r")
@@ -345,7 +348,9 @@ def detect_gate(image):
     global _dbg_all_tags
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     tags = _read_tags(gray)
-    _dbg_all_tags = [(tid, round(side, 1)) for tid, _center, side in tags]
+    # (id, cx, cy, side_px): positions let a log determine an unmapped tag's slot
+    _dbg_all_tags = [(tid, int(center[0]), int(center[1]), round(side, 1))
+                     for tid, center, side in tags]
     group = _nearest_gate(tags)
     if not group:
         return None
@@ -555,12 +560,12 @@ def update(drone):
             _gate_last = None
             _dbg_all_tags = []
         # event on any change in what's decoded -- unmapped ids here mean TAG_MAP is wrong
-        seen = sorted(tid for tid, _px in _dbg_all_tags)
+        seen = sorted(tid for tid, *_rest in _dbg_all_tags)
         if seen != _tags_seen_prev:
             mapped = [t for t in seen if t in TAG_MAP]
             unmapped = [t for t in seen if t not in TAG_MAP]
             _log.info(f"[EVT] t={_timer:.2f} tags in view: mapped={mapped} unmapped={unmapped} "
-                      f"sizes={_dbg_all_tags}")
+                      f"tags(id,cx,cy,px)={_dbg_all_tags}")
             _tags_seen_prev = seen
         if _gate_last is not None:
             if _gate_px_prev is not None and _timer > _gate_px_prev[0]:
