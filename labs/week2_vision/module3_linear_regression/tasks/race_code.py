@@ -18,7 +18,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.8 console-only-log"
+CODE_VERSION = "2026-08-01.9 gate-status-heartbeat"
 
 
 class _ConsoleLog:
@@ -548,6 +548,11 @@ def update(drone):
                 f" I={KI_ALT_GATE*_alt_err_int:+.3f} D={KD_ALT_GATE*alt_err_dot:+.3f})"
                 f" thH={_throttle_h:+.3f} thL={_throttle_l:+.3f} hold={_hold:.2f}"
             )
+        else:
+            # gate-status heartbeat (the original code printed "Gate: None" every
+            # frame): confirms at a glance whether the gate is seen right now, and
+            # which raw tags the last detection attempt decoded
+            _log.info(f"[GT] t={_timer:6.2f} no gate (decoded tags: {_dbg_all_tags})")
     drone.flight.send_pcmd(pitch_rate, roll_rate, yaw_rate, throttle)
 
     if _timer >= MAX_FOLLOW:
