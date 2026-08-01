@@ -4,6 +4,7 @@ Lock in
 
 import atexit
 import math
+import signal
 import subprocess
 import time
 import drone_core
@@ -21,7 +22,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.18 gate-tags-5x5-field-verified"
+CODE_VERSION = "2026-08-01.19 px4-summary-in-flight-log"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -35,6 +36,7 @@ _ORIG_STDOUT, _ORIG_STDERR = _sys.stdout, _sys.stderr
 _LOG_REPO = None
 _LOG_FILE = None
 _LOG_NAME = None
+_LOG_DIR = None
 try:
     _r = subprocess.run(["git", "-C", _d, "rev-parse", "--show-toplevel"],
                         capture_output=True, text=True, timeout=10)
@@ -42,6 +44,7 @@ try:
         _LOG_REPO = _r.stdout.strip()
         _log_dir = _os.path.join(_LOG_REPO, "flight_logs")
         _os.makedirs(_log_dir, exist_ok=True)
+        _LOG_DIR = _log_dir
         # timestamp + pid + counter, created exclusively ("x"): unique even with
         # the Pi's clock resetting between boots or two runs in the same second
         _stamp = time.strftime("%Y%m%d_%H%M%S")
@@ -84,10 +87,46 @@ if _LOG_FILE is not None:
     _sys.stderr = _Tee(_ORIG_STDERR, _LOG_FILE)
 
 
+def _px4_log_summary():
+    """Pull the PX4 flight-controller log summary (vibration, clipping, thrust)
+    into this flight log via diagnostics/pull_px4_log.py. Runs only when
+    PX4_LOG_URL is set (the Pi exports it, e.g. udp:0.0.0.0:14550) and is
+    bounded by PX4_LOG_TIMEOUT (default 180 s) so exit can never hang. One pull
+    per run at exit: pulling between steps would fight MAVROS for the link.
+    The .ulg lands in flight_logs/ and rides the same commit."""
+    url = _os.environ.get("PX4_LOG_URL")
+    if not url or _LOG_DIR is None:
+        return
+    script = _os.path.join(_d, "diagnostics", "pull_px4_log.py")
+    timeout = float(_os.environ.get("PX4_LOG_TIMEOUT", "180"))
+    print(f"[PX4] pulling flight-controller log from {url} (timeout {timeout:.0f}s)")
+    try:
+        r = subprocess.run([_sys.executable, script, url], cwd=_LOG_DIR,
+                           capture_output=True, text=True, timeout=timeout)
+        if r.stdout.strip():
+            print(r.stdout.rstrip())
+        if r.returncode != 0:
+            print(f"[PX4] puller exited {r.returncode}: {r.stderr.strip()[:400]}")
+    except subprocess.TimeoutExpired:
+        print(f"[PX4] pull timed out after {timeout:.0f}s -- run pull_px4_log.py manually")
+    except Exception as e:
+        print(f"[PX4] pull skipped: {e}")
+
+
 def _commit_flight_log():
-    """atexit: detach the tee, then commit+push the log via git subprocess.
-    Never raises; a failed push leaves the commit local for a later `git push`."""
+    """atexit: append the PX4 summary while the tee is still attached (so it is
+    part of the pushed log), then detach, commit and push. SIGINT is ignored for
+    the duration so a second Ctrl-C cannot abort the capture -- atexit itself
+    already runs after the first Ctrl-C."""
     global _LOG_FILE
+    try:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+    except (ValueError, OSError):
+        pass                                # non-main thread / restricted env
+    try:
+        _px4_log_summary()
+    except Exception as e:
+        print(f"[PX4] summary failed: {e}")
     _sys.stdout, _sys.stderr = _ORIG_STDOUT, _ORIG_STDERR
     if _LOG_FILE is not None:
         try:
