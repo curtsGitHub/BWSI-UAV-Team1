@@ -21,7 +21,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.17 gate-lateral-centering"
+CODE_VERSION = "2026-08-01.18 gate-tags-5x5-field-verified"
 
 # ── Flight log capture ────────────────────────────────────────────────────────────
 # Everything written to the console (our prints, neo_lab's, tracebacks) is teed
@@ -248,11 +248,13 @@ SLOT_OFFSET = {
 
 # Course map: tag id -> (gate number, slot). Fill this in and let it rip.
 TAG_MAP = {
+    # field-verified 2026-08-01: bottom 46, left 47, top 48, right 49.
+    # (46 was previously mis-mapped as "r" -- gate cy estimates from it were
+    # biased a full HALF_H low, which is why approaches sank toward 0.6 m.)
+    46: (1, "b"),
+    47: (1, "l"),
     48: (1, "t"),
-    46: (1, "r"),
-    47: (1, "l"),   # INFERRED from 2026-08-01 flight (unmapped id 47 seen repeatedly,
-                    # often together with 46; ids 46/47/48 cluster on one gate).
-                    # VERIFY at the field -- if 47 is actually the bottom tag, fix this.
+    49: (1, "r"),
     # 1: (1, "b"),  # sim-era ids, not seen on the real course; re-enable for sim runs
     # 2: (1, "l"),
 }
@@ -282,7 +284,10 @@ class Gate:
 def _gate_aruco_dict():
     global _gate_dict
     if _gate_dict is None:
-        _gate_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+        # field-verified: the real gate tags are 5x5 (the old 6x6 dict only
+        # marginally decoded them -- hence the flickering detections in logs).
+        # 250-id variant in case later gates use ids >= 50.
+        _gate_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_250)
     return _gate_dict
 
 def _detect_gate_markers(gray):
@@ -347,7 +352,7 @@ def _center_from_tag(slot, center, side):
 
 
 def detect_gate(image):
-    """Locate a gate from its DICT_6X6_250 tags. Each visible tag predicts the gate
+    """Locate a gate from its DICT_5X5_250 tags. Each visible tag predicts the gate
     center on its own; the predictions are averaged. One tag is enough, two agree."""
     global _dbg_all_tags
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
