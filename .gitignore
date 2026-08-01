@@ -18,8 +18,8 @@
 /drone-student/scripts/.logs/
 
 # Python bytecode
-__pycache__/
-*.pyc
+# __pycache__/
+# *.pyc
 
 # Vlada Sokol
 /drone-venv-312
