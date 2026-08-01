@@ -17,6 +17,11 @@ if _d not in _sys.path:
     _sys.path.insert(0, _d)
 import neo_lab
 
+# Bump on every code change (date.rev + slug). Printed as the first log line so a
+# flight log always identifies the code that actually flew -- a log without a
+# matching [VER] line means the drone ran a stale copy.
+CODE_VERSION = "2026-08-01.1 max-roll-revert + lost-climb + fwd-cam-evt"
+
 
 def _make_logger():
     """Two sinks: console (live view) and a timestamped file under <repo>/logs/race/
@@ -41,6 +46,7 @@ def _make_logger():
         lg.info(f"[LOG] writing to {path}")
     except OSError as e:
         lg.info(f"[LOG] file sink disabled: {e}")
+    lg.info(f"[VER] race_code {CODE_VERSION}")   # after both sinks so it reaches the file
     return lg
 
 
@@ -533,7 +539,7 @@ if __name__ == "__main__":
     def start():
         _launcher.reset()
         reset()
-        _log.info("Step 3: Visual Servoing (Vision + PID)")
+        _log.info(f"Step 3: Visual Servoing (Vision + PID) -- race_code {CODE_VERSION}")
         # snapshot the tuning so every log file records the gains it flew with
         _log.info(f"[CFG] line: yawKP={yawKP} yawKD={yawKD} MAX_YAW={MAX_YAW}"
                   f" rollKP={rollKP} rollKD={rollKD} MAX_ROLL={MAX_ROLL}"
