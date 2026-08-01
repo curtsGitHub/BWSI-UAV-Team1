@@ -80,7 +80,7 @@ MAX_YAW       = 0.35     # restored to fbb20c80 (primary curve steering). NOTE: 
                          # full stick is ~1.8-2 rad/s, so this is ~0.7 rad/s true.
 IMAGE_CENTER  = 320      # 640-wide image -> center column
 LOOKAHEAD_FRAC = 0.4     # split the line into a far (yaw) part and a near (roll) part
-LOST_TIME     = 5.0      # give the climb-and-reacquire recovery room to work: one
+LOST_TIME     = 20.0      # give the climb-and-reacquire recovery room to work: one
                          # recovery in the 2026-08-01 log took 3.2 s, right at the
                          # old 3.0 s limit
 MAX_FOLLOW    = 180.0    # total-time cap, raised to match the slower cruise speed
