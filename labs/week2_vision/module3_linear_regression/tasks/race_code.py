@@ -20,7 +20,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.1 max-roll-revert + lost-climb + fwd-cam-evt"
+CODE_VERSION = "2026-08-01.2 side-tag-bias + real-gate-dims"
 
 
 def _make_logger():
@@ -66,11 +66,11 @@ THROTTLE_LIMIT = 0.5
 ALT_TOL = 0.15
 ROW_CENTER = 240
 
-# !!!!!!!!!!!!!! SIM SETTINGS
-HALF_W = 3.7      # gate center -> left/right tag
-HALF_H = 3.2      # gate center -> top/bottom tag
-
-# !!!!!!!!!!!!!! SIM SETTINGS
+# Gate geometry in tag-side units -- exactly ONE block active at a time.
+# SIM (v1.0.0 gates):
+#HALF_W = 3.7             # gate center -> left/right tag
+#HALF_H = 3.2             # gate center -> top/bottom tag
+# REAL (measured: 77 x 67 cm gate, 7.75 cm tags):
 HALF_W = 77./2./7.75     # gate center -> left/right tag
 HALF_H = 67./2./7.75     # gate center -> top/bottom tag
 
