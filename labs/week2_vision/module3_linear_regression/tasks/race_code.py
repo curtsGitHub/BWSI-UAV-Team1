@@ -3,8 +3,6 @@ Lock in
 """
 
 import math
-import logging
-import time
 import drone_core
 import drone_utils as uav_utils
 import cv2
@@ -20,37 +18,19 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.7 reliability-margins"
+CODE_VERSION = "2026-08-01.8 console-only-log"
 
 
-def _make_logger():
-    """Two sinks: console (live view) and a timestamped file under <repo>/logs/race/
-    (commit it after the flight so the log is findable in git). RACE_LOG_DIR overrides
-    the directory; file lines carry a wall-clock timestamp, console stays clean."""
-    lg = logging.getLogger("race")
-    if lg.handlers:                          # already configured (re-import / re-run)
-        return lg
-    lg.setLevel(logging.INFO)
-    lg.propagate = False
-    console = logging.StreamHandler()
-    console.setFormatter(logging.Formatter("%(message)s"))
-    lg.addHandler(console)
-    try:
-        repo_root = _os.path.dirname(_os.path.dirname(_d))     # labs -> course -> repo
-        log_dir = _os.environ.get("RACE_LOG_DIR", _os.path.join(repo_root, "logs", "race"))
-        _os.makedirs(log_dir, exist_ok=True)
-        path = _os.path.join(log_dir, time.strftime("%Y%m%d_%H%M%S") + "_race.log")
-        file_sink = logging.FileHandler(path)
-        file_sink.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
-        lg.addHandler(file_sink)
-        lg.info(f"[LOG] writing to {path}")
-    except OSError as e:
-        lg.info(f"[LOG] file sink disabled: {e}")
-    lg.info(f"[VER] race_code {CODE_VERSION}")   # after both sinks so it reaches the file
-    return lg
+class _ConsoleLog:
+    """Console-only log. Capture a flight by redirecting the console, e.g.
+    `python main.py 2>&1 | tee flight.log`."""
+    @staticmethod
+    def info(msg):
+        print(msg, flush=True)   # flush so lines don't lag behind the flight over SSH
 
 
-_log = _make_logger()
+_log = _ConsoleLog()
+_log.info(f"[VER] race_code {CODE_VERSION}")
 
 #GATE Constants
 V_MIN = 200
