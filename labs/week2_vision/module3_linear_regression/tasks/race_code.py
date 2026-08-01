@@ -18,7 +18,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.11 ver-before-each-step-and-at-end"
+CODE_VERSION = "2026-08-01.12 hold-yaw-on-band-empty"
 
 
 class _ConsoleLog:
@@ -380,7 +380,7 @@ def update(drone):
         fb = ("N" if n_near == 0 else "-") + ("F" if n_far == 0 else "-")
         if fb != _fb_prev:
             _log.info(f"[EVT] t={_timer:.2f} bands={fb} (N=near empty, F=far empty; "
-                      f"an empty band makes yawErr fall back toward 0)")
+                      f"on an empty band yawErr holds its last value, decaying)")
             _fb_prev = fb
         if n_far == 0:
             far = points
@@ -394,12 +394,18 @@ def update(drone):
         # fbb20c80 line follow: raw errors into the PIDs, only the yaw derivative
         # is dampened. yaw error = line angle (near -> far centroid), radians;
         # invariant to lateral offset, so offset stays roll's job
-        yawErr = math.atan2(farCol - nearCol, max(near_row - far_row, 1.0))
-        rollErr = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
-
-        yawErr_derv = (yawErr - _yawPrev_err) / dt if dt > 0 else 0.0
-        _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv
+        if n_near == 0 or n_far == 0:
+            # degenerate band geometry: hold the last valid heading error, decaying,
+            # instead of zeroing it -- the v.9 flight lost the line when the far
+            # band emptied mid-turn and the old fallback collapsed steering to 0
+            yawErr = 0.9 * _yawPrev_err
+            _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt   # decay only, no raw->0 spike
+        else:
+            yawErr = math.atan2(farCol - nearCol, max(near_row - far_row, 1.0))
+            yawErr_derv = (yawErr - _yawPrev_err) / dt if dt > 0 else 0.0
+            _yaw_err_dot_filt = 0.8 * _yaw_err_dot_filt + 0.2 * yawErr_derv
         _yawPrev_err = yawErr
+        rollErr = (nearCol - IMAGE_CENTER) / IMAGE_CENTER
 
         rollErr_derv = (rollErr - _rollPrev_err) / dt if dt > 0 else 0.0
         _rollPrev_err = rollErr
