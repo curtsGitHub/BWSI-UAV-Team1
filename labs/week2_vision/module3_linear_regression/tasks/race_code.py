@@ -20,7 +20,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.4 slow-and-brake-for-curves"
+CODE_VERSION = "2026-08-01.5 largest-blob"
 
 
 def _make_logger():
@@ -162,6 +162,18 @@ TAG_MAP = {
 }
 
 SIDE_SLOTS = ("l", "r")
+
+def _largest_blob(mask):
+    """Keep only the largest connected component of the line mask. At ~1 m the FOV
+    can hold two segments of the winding course at once; centroids over both made
+    nearC teleport across the image and flipped the yaw error (2026-08-01 logs)."""
+    n, labels = cv2.connectedComponents(mask.astype(np.uint8))
+    if n <= 2:                       # background + at most one blob
+        return mask
+    counts = np.bincount(labels.ravel())
+    counts[0] = 0                    # never pick the background
+    return labels == counts.argmax()
+
 
 def pid_control(err, err_int, err_dot, kp, ki, kd):
     p = kp * err
@@ -347,7 +359,7 @@ def update(drone):
             _log.info(f"[EVT] t={_timer:.2f} no video for {LOST_TIME}s -> landing")
         return _done
 
-    mask = neo_lab.bright_mask(img, S_MIN) > 0
+    mask = _largest_blob(neo_lab.bright_mask(img, S_MIN) > 0)
     points = np.argwhere(mask)
 
     if len(points) < MIN_PIXELS:
