@@ -29,8 +29,9 @@ THROTTLE_LIMIT = 0.5
 ALT_TOL = 0.15
 ROW_CENTER = 240
 
-HALF_W = 3.7      # gate center -> left/right tag
-HALF_H = 3.2      # gate center -> top/bottom tag
+#Calculation is ((center to marker (Sides or Top/Bottom)) / (side length of Aruco Tag (7.75)))
+HALF_W = ((77/2)/7.75)      # gate center -> left/right tag
+HALF_H = ((67/2)/7.75)     # gate center -> top/bottom tag
 
 #GATE State Vars
 _alt_err_int = 0.0
@@ -91,6 +92,8 @@ TAG_MAP = {
     3: (1, "r"),
 }
 
+SIDE_SLOTS = ("l", "r")
+
 def pid_control(err, err_int, err_dot, kp, ki, kd):
     p = kp * err
     i = ki * err_int
@@ -132,6 +135,14 @@ def _tag_side(quad):
     edges = [np.linalg.norm(p[i] - p[(i + 1) % 4]) for i in range(4)]
     return float(np.mean(edges))
 
+    
+
+def _prefer_sides(group):
+    """Gates differ in height, so t/b/corner tags guess cy through HALF_H.
+    Side tags don't (their vertical offset is 0), so trust them alone if present."""
+    sides = [t for t in group if t[1] in SIDE_SLOTS]
+    return sides if sides else group
+
 
 def _read_tags(gray):
     """Every decoded tag as (id, center_xy, side_px)."""
@@ -144,7 +155,6 @@ def _read_tags(gray):
         center = quad.reshape(-1, 2).mean(axis=0)
         tags.append((int(tid), center, _tag_side(quad)))
     return tags
-
 
 def _nearest_gate(tags):
     """Group the mapped tags by gate, keep the closest gate (biggest tag on screen)."""
@@ -175,6 +185,7 @@ def detect_gate(image):
     group = _nearest_gate(_read_tags(gray))
     if not group:
         return None
+    group = _prefer_sides(group)
 
     guesses = [_center_from_tag(slot, center, side)
                for _tid, slot, center, side in group]
@@ -325,7 +336,8 @@ def update(drone):
     #COMMAND
     #low pass filter
     #throttle = (_throttle_prev * 0.7) + ((_throttle_h + _throttle_l) * 0.3)
-    throttle = _throttle_l if gate is None else (_throttle_l + _throttle_h)
+    #throttle = _throttle_l if gate is None else (_throttle_l + _throttle_h) #averaging when in view
+    throttle = _throttle_l if gate is None else _throttle_h #h only when in view
     _throttle_prev = throttle
     if int(_timer * 2) != int((_timer - dt) * 2):
         print(f"throttle:{throttle} errAlt:{errAlt * IMAGE_CENTER} altitude:{neo_lab.height(drone)} pitch:{pitch_rate} ErrRoll:{rollErr} yawErr:{yawErr} yaw_rate:{yaw_rate * 2} rollRate:{roll_rate}")
@@ -344,6 +356,16 @@ def update(drone):
     """
     return _done
 
+def record(z, x, y, yaw, waypointType):
+    global _recorder
+    path = _os.environ.get("LOG_RACE_RECORD")
+    if path is None:
+        return
+    
+    if _recorder is None:
+        _recorder = neo_lab.Recorder(path)
+    row = {"Z":z, "X":x, "Y":y, "Yaw":yaw, "Type":waypointType}
+    _recorder.log(**row)
 
 if __name__ == "__main__":
     _drone = drone_core.create_drone()
@@ -365,13 +387,4 @@ if __name__ == "__main__":
     _drone.go()
 
 
-def record(z, x, y, yaw, waypointType):
-    global _recorder
-    path = _os.environ.get("LOG_RACE_RECORD")
-    if path is None:
-        return
-    
-    if _recorder is None:
-        _recorder = neo_lab.Recorder(path)
-    row = {"Z":z, "X":x, "Y":y, "Yaw":yaw, "Type":waypointType}
-    _recorder.log(**row)
+
