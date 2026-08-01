@@ -20,7 +20,7 @@ import neo_lab
 # Bump on every code change (date.rev + slug). Printed as the first log line so a
 # flight log always identifies the code that actually flew -- a log without a
 # matching [VER] line means the drone ran a stale copy.
-CODE_VERSION = "2026-08-01.5 largest-blob"
+CODE_VERSION = "2026-08-01.6 airborne-latch"
 
 
 def _make_logger():
@@ -105,6 +105,7 @@ MAX_THROTTLE = 0.3       # real drone: 0.3 * 0.5 m/s = 0.15 m/s vertical authori
                          # itself held altitude -- on real PX4 nothing does that for us.
 KP_ALT = 0.3             # retune at the field; sim value 0.1 was masked by the deadband
 TARGET_HEIGHT = 1.0
+MIN_FLY_ALT = 0.25       # below this at startup: climb only (one-way latch, see update)
 yawKP = 0.6              # yawErr is the line angle in radians, so keep kp*err under MAX_YAW
 yawKI = 0.0
 yawKD = 0.2              # usable now that the derivative is low-pass filtered
@@ -125,6 +126,7 @@ _yaw_err_dot_filt = 0.0
 _yaw_err_filt = 0.0
 _roll_err_filt = 0.0
 _gate_last = None
+_airborne = False
 
 #DEBUG State Vars
 _dbg_all_tags = []       # every decoded tag (id, side_px) from the last detection attempt
@@ -287,7 +289,7 @@ def reset():
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last
+    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last, _airborne
     global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh, _recorder
@@ -312,6 +314,7 @@ def reset():
     _yaw_err_filt = 0.0
     _roll_err_filt = 0.0
     _gate_last = None
+    _airborne = False
 
     _dbg_all_tags = []
     _tags_seen_prev = []
@@ -332,7 +335,7 @@ def update(drone):
     global _rot_err_int, _rot_prev_err, _filtered_rot_err_dot, _target_col, _hold, _done
     global _alt_err_int, _alt_prev_err, _alt_max_err
     global _timer, _lost, _prev_roll_rate, _prev_yaw_rate, _yawPrev_err, _rollPrev_err, _prevTags
-    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last
+    global _yaw_err_dot_filt, _yaw_err_filt, _roll_err_filt, _gate_last, _airborne
     global _dbg_all_tags, _tags_seen_prev, _fb_prev, _gate_seen_t, _gate_px_prev, _gate_close_rate, _color_ok_prev
     global _throttle_h, _throttle_l, _throttle_prev
     global _fresh
@@ -345,6 +348,21 @@ def update(drone):
     tick = int(_timer * DBG_HZ) != int((_timer - dt) * DBG_HZ)
     img = drone.camera.get_downward_image()
     imgColor = drone.camera.get_color_image()
+
+    # One-way airborne latch: until first reaching MIN_FLY_ALT, command climb only.
+    # A disarmed-on-ground start otherwise runs the full controller on the floor
+    # (27 s of it in the 2026-08-01 log, then it scooted off the line at OFFBOARD
+    # engage). One-way on purpose: race gates sit at different heights, so once
+    # airborne the drone may legitimately fly below MIN_FLY_ALT again.
+    if not _airborne:
+        alt_now = neo_lab.height(drone)
+        if alt_now < MIN_FLY_ALT:
+            drone.flight.send_pcmd(0.0, 0.0, 0.0,
+                                   uav_utils.clamp((TARGET_HEIGHT - alt_now) * KP_ALT,
+                                                   -MAX_THROTTLE, MAX_THROTTLE))
+            return False
+        _airborne = True
+        _log.info(f"[EVT] t={_timer:.2f} airborne (alt={alt_now:.2f}m), controller active")
 
     #LINE FOLLOW
     if img is None:
