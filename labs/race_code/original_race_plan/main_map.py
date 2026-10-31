@@ -9,7 +9,7 @@ if _d not in _sys.path:
     _sys.path.insert(0, _d)
 import neo_lab
 
-import manual_control
+import labs.race_code.race_plan.manual_control as manual_control
 
 neo_lab.run_module("ManualFlight", [("ManualFlight", manual_control)], launch_height=0, autostart=True, led_color=(255, 255, 255), launch=False)
 

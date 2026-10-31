@@ -9,8 +9,8 @@ if _d not in _sys.path:
     _sys.path.insert(0, _d)
 import neo_lab
 
-import min_snap
+import labs.race_code.race_plan.pid_pathing as pid_pathing
 
-neo_lab.run_module("MinSnap", [("MinSnap", min_snap)], launch_height=1, autostart=True, led_color=(255, 255, 255), launch=False)
+neo_lab.run_module("PID", [("PID", pid_pathing)], launch_height=1, autostart=True, led_color=(255, 255, 255), launch=False)
 
 
