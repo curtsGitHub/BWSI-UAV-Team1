@@ -1,8 +1,9 @@
-# Actual race code
-Curterney: previous line followers, line following code in race_code.py, gateDetect.py
+# Final race code
+race_code.py - final comeptition code (shared file)
+    Line following: Curterney
+    Gate detection: Aiden
 
-Aiden: gate detection code in race_code.py and step3_follower_linePIDGATE.py
+previous_line_followers/ - my earlier iterations (Curterney)
+gateDetect.py - my parallel version of gate detection (Curterney)
 
-Shared: race_code.py
-
-Instructors: gate methods, neo_lab, ROS wrappers
+Instructors: gate methods, neo_lab, ROS wrappers (provided)
